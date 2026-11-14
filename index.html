@@ -2,1473 +2,305 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GlassHome — Premium Android Launcher Prototype</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GlassHome: Glass Launcher for Android</title>
+<meta name="description" content="GlassHome is a premium glass launcher for Android: a depth-effect clock that lives inside your wallpaper, frosted glass widgets, live wallpapers, icon packs and deep customization. No account, no analytics.">
+<meta name="theme-color" content="#07090f">
+<link rel="canonical" href="https://rm10490-wq.github.io/">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="GlassHome: Glass Launcher for Android">
+<meta property="og:description" content="A home screen built around your wallpaper. Depth clock, frosted glass, live wallpapers. No account, no analytics.">
+<meta property="og:url" content="https://rm10490-wq.github.io/">
+<meta property="og:image" content="https://rm10490-wq.github.io/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <style>
-  /* ============================================
-     1. GLOBAL DESIGN TOKENS
-     ============================================ */
   :root {
-    /* Colors */
-    --accent: #4fc3f7;
-    --accent-soft: rgba(79, 195, 247, 0.25);
-    --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.78);
-    --text-muted: rgba(255, 255, 255, 0.55);
-    --glass-bg: rgba(255, 255, 255, 0.12);
-    --glass-border: rgba(255, 255, 255, 0.22);
-    --glass-highlight: rgba(255, 255, 255, 0.45);
-    --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.25);
-    --shadow-icon: 0 6px 18px rgba(0, 0, 0, 0.28);
-    --radius-sm: 12px;
-    --radius-md: 18px;
-    --radius-lg: 24px;
-    --radius-xl: 32px;
-    --radius-full: 9999px;
+    --bg: #070a1c;
+    --text: #f6f7fc;
+    --text-2: rgba(246, 247, 252, .80);
+    --text-3: rgba(246, 247, 252, .60);
+    --accent: #ffa31a;
+    --accent-2: #ffd27a;
+    --radius: 28px;
+    --max: 1120px;
+    --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-    
-    /* Icon system */
-    --icon-size: 58px;
-    --icon-gap: 22px;
-    --icon-label-size: 11px;
-    --glass-opacity: 0.55;
-    --blur-intensity: 18px;
-    --highlight-intensity: 0.55;
-    --shadow-depth: 0.28;
-
-    /* Layout */
-    --phone-width: 360px;
-    --phone-height: 780px;
-    --status-height: 28px;
-    --dock-height: 78px;
-    --search-height: 44px;
-
-    /* Typography */
-    --font-sans: "SF Pro Display", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-mono: "SF Mono", "Roboto Mono", ui-monospace, monospace;
-
-    /* Transitions */
-    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* The glass recipe, in one place: a bright-to-clear fill, a lit top edge, a faint bottom edge,
+       a soft drop shadow, and the page behind it blurred and saturated. */
+    --glass-fill: linear-gradient(135deg, rgba(255, 255, 255, .20) 0%, rgba(255, 255, 255, .07) 55%, rgba(255, 255, 255, .12) 100%);
+    --glass-fill-strong: linear-gradient(135deg, rgba(255, 255, 255, .26) 0%, rgba(255, 255, 255, .10) 60%, rgba(255, 255, 255, .16) 100%);
+    --glass-rim: rgba(255, 255, 255, .28);
+    --glass-shadow: 0 10px 40px rgba(2, 4, 20, .38), inset 0 1px 0 rgba(255, 255, 255, .42), inset 0 -1px 0 rgba(255, 255, 255, .06);
+    --glass-blur: blur(26px) saturate(170%);
   }
-
-  /* Dark mode overrides (already dark by default, light mode adjusts) */
-  [data-theme="light"] {
-    --text-primary: #1a1a1a;
-    --text-secondary: rgba(0, 0, 0, 0.72);
-    --text-muted: rgba(0, 0, 0, 0.5);
-    --glass-bg: rgba(255, 255, 255, 0.55);
-    --glass-border: rgba(255, 255, 255, 0.7);
-    --glass-highlight: rgba(255, 255, 255, 0.85);
-    --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.12);
-    --shadow-icon: 0 6px 18px rgba(0, 0, 0, 0.15);
-  }
-
-  /* ============================================
-     2. RESET & BASE
-     ============================================ */
-  *, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  html {
-    font-size: 16px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
   body {
-    font-family: var(--font-sans);
-    background: #0a0c12;
-    color: var(--text-primary);
-    min-height: 100vh;
-    line-height: 1.45;
-    overflow-x: hidden;
-  }
-
-  /* ============================================
-     3. PAGE LAYOUT
-     ============================================ */
-  .page {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 40px 24px 80px;
-  }
-
-  .page-header {
-    text-align: center;
-    margin-bottom: 48px;
-  }
-
-  .page-header h1 {
-    font-size: 2.4rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    background: linear-gradient(135deg, #fff 0%, #a0e0ff 50%, #7ee8fa 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 8px;
-  }
-
-  .page-header p {
-    color: var(--text-muted);
-    font-size: 1.05rem;
-    max-width: 520px;
-    margin: 0 auto;
-  }
-
-  .main-grid {
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 48px;
-    align-items: start;
-  }
-
-  @media (max-width: 980px) {
-    .main-grid {
-      grid-template-columns: 1fr;
-      justify-items: center;
-    }
-  }
-
-  /* ============================================
-     4. PHONE MOCKUP
-     ============================================ */
-  .phone-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .phone {
-    width: var(--phone-width);
-    height: var(--phone-height);
-    border-radius: 42px;
-    background: #111;
-    padding: 10px;
-    box-shadow:
-      0 0 0 2px #2a2a2a,
-      0 0 0 6px #1a1a1a,
-      0 40px 80px rgba(0, 0, 0, 0.55),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .phone-screen {
-    width: 100%;
-    height: 100%;
-    border-radius: 34px;
-    overflow: hidden;
-    position: relative;
-    background: #000;
-  }
-
-  /* Wallpaper layers */
-  .wallpaper {
-    position: absolute;
-    inset: 0;
-    transition: opacity 0.7s var(--ease-out), filter 0.7s var(--ease-out);
-    z-index: 0;
-  }
-
-  .wallpaper.blue {
-    background:
-      radial-gradient(ellipse 120% 80% at 70% 20%, rgba(0, 180, 255, 0.55) 0%, transparent 55%),
-      radial-gradient(ellipse 90% 70% at 20% 80%, rgba(0, 100, 200, 0.45) 0%, transparent 50%),
-      linear-gradient(165deg, #0a1a2f 0%, #0d2a4a 30%, #1a4a6e 60%, #0e3a5c 100%);
-  }
-
-  .wallpaper.sunset {
-    background:
-      radial-gradient(ellipse 100% 80% at 80% 15%, rgba(255, 120, 80, 0.6) 0%, transparent 50%),
-      radial-gradient(ellipse 80% 60% at 15% 70%, rgba(255, 80, 140, 0.4) 0%, transparent 50%),
-      linear-gradient(165deg, #2a1020 0%, #4a1a2a 25%, #8a3a2a 55%, #c05a30 80%, #e08050 100%);
-  }
-
-  .wallpaper.nature {
-    background:
-      radial-gradient(ellipse 110% 70% at 30% 20%, rgba(80, 220, 140, 0.4) 0%, transparent 50%),
-      radial-gradient(ellipse 90% 80% at 80% 75%, rgba(40, 160, 100, 0.35) 0%, transparent 50%),
-      linear-gradient(165deg, #0a1f14 0%, #0e2e1c 30%, #1a4a30 60%, #0f3524 100%);
-  }
-
-  .wallpaper.active {
-    opacity: 1;
-  }
-
-  .wallpaper:not(.active) {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  /* Ambient glow overlay that reacts to wallpaper */
-  .ambient-glow {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 1;
-    transition: background 0.7s var(--ease-out);
-    mix-blend-mode: soft-light;
-  }
-
-  /* ============================================
-     5. STATUS BAR
-     ============================================ */
-  .status-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: var(--status-height);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 18px;
-    z-index: 20;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-primary);
-    letter-spacing: 0.02em;
-  }
-
-  .status-left {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .status-right {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .status-icon {
-    width: 16px;
-    height: 16px;
-    opacity: 0.95;
-  }
-
-  /* ============================================
-     6. HOME CONTENT
-     ============================================ */
-  .home-content {
-    position: absolute;
-    inset: 0;
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    padding: 36px 16px 12px;
-  }
-
-  /* Clock + Date */
-  .clock-area {
-    text-align: center;
-    margin-top: 12px;
-    margin-bottom: 18px;
-  }
-
-  .clock-time {
-    font-size: 64px;
-    font-weight: 300;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    color: var(--text-primary);
-    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
-  }
-
-  .clock-date {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-top: 4px;
-    letter-spacing: 0.01em;
-  }
-
-  .weather-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 10px;
-    padding: 5px 12px;
-    border-radius: var(--radius-full);
-    background: var(--glass-bg);
-    backdrop-filter: blur(calc(var(--blur-intensity) * 0.7));
-    -webkit-backdrop-filter: blur(calc(var(--blur-intensity) * 0.7));
-    border: 1px solid var(--glass-border);
-    font-size: 12px;
-    color: var(--text-secondary);
-  }
-
-  /* Search bar */
-  .search-bar {
-    height: var(--search-height);
-    border-radius: var(--radius-full);
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--blur-intensity));
-    -webkit-backdrop-filter: blur(var(--blur-intensity));
-    border: 1px solid var(--glass-border);
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    gap: 10px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow-soft);
-    transition: background 0.3s, border-color 0.3s;
-  }
-
-  .search-bar:hover {
-    background: rgba(255, 255, 255, 0.16);
-  }
-
-  .search-icon {
-    width: 18px;
-    height: 18px;
-    opacity: 0.7;
-    flex-shrink: 0;
-  }
-
-  .search-placeholder {
-    font-size: 14px;
-    color: var(--text-muted);
-    flex: 1;
-  }
-
-  .search-mic {
-    width: 18px;
-    height: 18px;
-    opacity: 0.65;
-  }
-
-  /* App grid */
-  .app-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--icon-gap) 12px;
-    justify-items: center;
-    padding: 0 4px;
-    flex: 1;
-  }
-
-  /* Dock */
-  .dock {
-    height: var(--dock-height);
-    border-radius: var(--radius-xl);
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--blur-intensity));
-    -webkit-backdrop-filter: blur(var(--blur-intensity));
-    border: 1px solid var(--glass-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-    padding: 0 10px;
-    margin-top: auto;
-    box-shadow: var(--shadow-soft);
-    position: relative;
-  }
-
-  .dock::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 15%;
-    right: 15%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
-    opacity: 0.6;
-  }
-
-  /* Page indicator */
-  .page-dots {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    margin: 10px 0 6px;
-  }
-
-  .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.35);
-    transition: all 0.25s;
-  }
-
-  .dot.active {
-    width: 16px;
-    border-radius: 3px;
-    background: rgba(255, 255, 255, 0.9);
-  }
-
-  /* ============================================
-     7. ICON SYSTEM — VIBRANT GLASS
-     ============================================ */
-  .app-icon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    width: calc(var(--icon-size) + 12px);
-  }
-
-  .icon-surface {
-    width: var(--icon-size);
-    height: var(--icon-size);
-    position: relative;
-    display: grid;
-    place-items: center;
-    transition:
-      transform 0.28s var(--ease-bounce),
-      filter 0.25s,
-      box-shadow 0.3s;
-    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, calc(var(--shadow-depth) * 0.9)));
-  }
-
-  .icon-surface svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-
-  /* Press animation */
-  .app-icon:active .icon-surface {
-    transform: scale(0.88);
-    filter: brightness(1.15) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
-  }
-
-  /* Long-press lift */
-  .app-icon.lifted .icon-surface {
-    transform: scale(1.08) translateY(-6px);
-    filter: brightness(1.08) drop-shadow(0 14px 24px rgba(0, 0, 0, 0.4));
-  }
-
-  .icon-label {
-    font-size: var(--icon-label-size);
-    font-weight: 500;
-    color: var(--text-primary);
-    text-align: center;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-    max-width: 72px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    letter-spacing: 0.01em;
-  }
-
-  /* Context menu */
-  .context-menu {
-    position: absolute;
-    bottom: calc(100% + 10px);
-    left: 50%;
-    transform: translateX(-50%) scale(0.9);
-    background: rgba(30, 32, 40, 0.92);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 14px;
-    padding: 6px;
-    min-width: 140px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s, transform 0.25s var(--ease-out);
-    z-index: 50;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-  }
-
-  .app-icon.lifted .context-menu {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateX(-50%) scale(1);
-  }
-
-  .context-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 12px;
-    border-radius: 10px;
-    font-size: 13px;
-    color: #fff;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .context-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  /* ============================================
-     8. CONTROLS PANEL
-     ============================================ */
-  .controls {
-    background: rgba(18, 20, 28, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
-    padding: 28px;
-    position: sticky;
-    top: 24px;
-  }
-
-  .controls h2 {
-    font-size: 1.15rem;
-    font-weight: 650;
-    margin-bottom: 20px;
-    letter-spacing: -0.02em;
-  }
-
-  .control-group {
-    margin-bottom: 22px;
-  }
-
-  .control-group label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 10px;
-  }
-
-  .wallpaper-btns {
-    display: flex;
-    gap: 10px;
-  }
-
-  .wp-btn {
-    flex: 1;
-    height: 44px;
-    border-radius: 12px;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: all 0.25s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .wp-btn.blue {
-    background: linear-gradient(135deg, #0a2a4a, #1a6aa0);
-  }
-
-  .wp-btn.sunset {
-    background: linear-gradient(135deg, #4a1a2a, #e07040);
-  }
-
-  .wp-btn.nature {
-    background: linear-gradient(135deg, #0a2a18, #2a8a50);
-  }
-
-  .wp-btn.active {
-    border-color: #fff;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
-  }
-
-  .theme-toggle {
-    display: flex;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
-    padding: 4px;
-  }
-
-  .theme-btn {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .theme-btn.active {
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
-  }
-
-  .slider-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .slider-row input[type="range"] {
-    flex: 1;
-    -webkit-appearance: none;
-    appearance: none;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.12);
-    border-radius: 3px;
-    outline: none;
-  }
-
-  .slider-row input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #fff;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  .slider-value {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    min-width: 36px;
-    text-align: right;
-  }
-
-  /* ============================================
-     9. ICON SHOWCASE SECTION
-     ============================================ */
-  .showcase {
-    margin-top: 80px;
-    padding-top: 48px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  .showcase h2 {
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    margin-bottom: 8px;
-  }
-
-  .showcase > p {
-    color: var(--text-muted);
-    margin-bottom: 32px;
-    max-width: 560px;
-  }
-
-  .icon-system-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 28px 20px;
-    margin-bottom: 48px;
-  }
-
-  .showcase-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .showcase-item .icon-surface {
-    width: 72px;
-    height: 72px;
-  }
-
-  .showcase-item .icon-label {
-    font-size: 12px;
-  }
-
-  /* Design tokens card */
-  .tokens-card {
-    background: rgba(18, 20, 28, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 28px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-  }
-
-  .token {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .token-name {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-  }
-
-  .token-value {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-primary);
-  }
-
-  /* Philosophy cards */
-  .philosophy {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-    margin-top: 32px;
-  }
-
-  .phil-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 16px;
-    padding: 18px;
-  }
-
-  .phil-card h4 {
-    font-size: 13px;
-    font-weight: 650;
-    margin-bottom: 6px;
-    color: #a0e0ff;
-  }
-
-  .phil-card p {
-    font-size: 12.5px;
-    color: var(--text-muted);
-    line-height: 1.5;
-  }
+    margin: 0; color: var(--text); font-family: var(--font); line-height: 1.6;
+    background: linear-gradient(160deg, #0a1030 0%, #150f33 48%, #0b1a2e 100%) fixed;
+    min-height: 100vh; overflow-x: hidden;
+  }
+  /* Colour for the glass to refract: three soft blurred orbs behind everything. */
+  .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .bg i { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .62; }
+  .bg i:nth-child(1) { width: 560px; height: 560px; left: -140px; top: -120px; background: radial-gradient(circle at 35% 35%, #4f7bff, #2b3fb8 70%); }
+  .bg i:nth-child(2) { width: 520px; height: 520px; right: -160px; top: 120px; background: radial-gradient(circle at 40% 40%, #ffb13d, #e0600f 72%); opacity: .5; }
+  .bg i:nth-child(3) { width: 620px; height: 620px; left: 28%; bottom: -260px; background: radial-gradient(circle at 50% 40%, #9a5cff, #4a2a9e 72%); opacity: .5; }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; }
+  .wrap { width: min(var(--max), 100% - 40px); margin-inline: auto; }
+  .skip { position: absolute; left: -999px; top: 8px; background: #fff; color: #000; padding: 8px 14px; border-radius: 8px; z-index: 50; }
+  .skip:focus { left: 8px; }
+  :focus-visible { outline: 3px solid var(--accent-2); outline-offset: 3px; border-radius: 8px; }
+
+  /* Every frosted surface */
+  .glass, .card, .plan, .band, header.top .bar, .btn-ghost, .shots figure .frame, .phone, .chip {
+    background: var(--glass-fill);
+    border: 1px solid var(--glass-rim);
+    box-shadow: var(--glass-shadow);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass, .card, .plan, .band, header.top .bar, .btn-ghost, .shots figure .frame, .phone, .chip { background: rgba(28, 32, 70, .92); }
+  }
+
+  /* Header: a floating glass bar */
+  header.top { position: sticky; top: 0; z-index: 20; padding: 14px 0; }
+  header.top .bar { display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding: 0 12px 0 20px; border-radius: 999px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .2px; text-decoration: none; }
+  .brand img { width: 32px; height: 32px; border-radius: 9px; box-shadow: 0 2px 10px rgba(0, 0, 0, .35); }
+  .bar ul { display: flex; gap: 26px; list-style: none; margin: 0; padding: 0; }
+  .bar ul a { text-decoration: none; color: var(--text-2); font-size: .95rem; padding: 10px 2px; }
+  .bar ul a:hover { color: #fff; }
+  @media (max-width: 760px) { .bar ul { display: none; } }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 26px; border-radius: 999px; font-weight: 650; text-decoration: none; transition: transform .15s ease, box-shadow .15s ease, filter .15s ease; }
+  .btn-primary { color: #2a1700; border: 1px solid rgba(255, 255, 255, .55); background: linear-gradient(180deg, #ffe2a3 0%, var(--accent) 100%); box-shadow: 0 12px 32px rgba(255, 150, 20, .38), inset 0 1px 0 rgba(255, 255, 255, .8); }
+  .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.04); box-shadow: 0 16px 40px rgba(255, 150, 20, .5), inset 0 1px 0 rgba(255, 255, 255, .8); }
+  .btn-ghost { color: var(--text); }
+  .btn-ghost:hover { transform: translateY(-1px); filter: brightness(1.12); }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; padding: 64px 0 56px; }
+  .chip { display: inline-block; padding: 7px 16px; border-radius: 999px; color: var(--accent-2); font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; margin-bottom: 18px; box-shadow: var(--glass-shadow); }
+  h1 { font-size: clamp(2.4rem, 5.4vw, 4rem); line-height: 1.05; margin: 0 0 18px; letter-spacing: -.02em; text-shadow: 0 2px 30px rgba(10, 16, 48, .5); }
+  h1 em { font-style: normal; background: linear-gradient(90deg, #ffe2a3, var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; }
+  .lede { font-size: 1.18rem; color: var(--text-2); max-width: 34em; margin: 0 0 28px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; }
+  .meta { margin-top: 18px; color: var(--text-3); font-size: .9rem; }
+  .phones { position: relative; display: flex; justify-content: center; align-items: center; min-height: 580px; }
+  /* A phone is a glass bezel around the screenshot. */
+  .phone { border-radius: 40px; padding: 8px; }
+  .phone img { width: 100%; height: auto; border-radius: 32px; }
+  .phone.main { width: min(290px, 54vw); position: relative; z-index: 2; box-shadow: 0 34px 90px rgba(2, 4, 24, .6), inset 0 1px 0 rgba(255, 255, 255, .5); }
+  .phone.side { width: min(220px, 40vw); position: absolute; }
+  .phone.left { left: 0; transform: translateY(40px) rotate(-6deg); }
+  .phone.right { right: 0; transform: translateY(40px) rotate(6deg); }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding-top: 36px; }
+    .phones { min-height: 500px; }
+    .phone.side { display: none; }
+  }
+
+  /* Sections */
+  section { padding: 72px 0; }
+  .section-head { max-width: 40em; margin-bottom: 36px; }
+  h2 { font-size: clamp(1.8rem, 3.6vw, 2.6rem); line-height: 1.12; letter-spacing: -.015em; margin: 0 0 12px; }
+  .section-head p { color: var(--text-2); margin: 0; font-size: 1.08rem; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
+  .card { padding: 26px; border-radius: var(--radius); transition: transform .2s ease, filter .2s ease; }
+  .card:hover { transform: translateY(-3px); filter: brightness(1.08); }
+  .card h3 { margin: 14px 0 6px; font-size: 1.15rem; }
+  .card p { margin: 0; color: var(--text-2); font-size: .98rem; }
+  .ico { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; color: #ffe2a3; background: linear-gradient(135deg, rgba(255, 190, 80, .35), rgba(255, 150, 20, .12)); border: 1px solid rgba(255, 220, 150, .5); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 6px 18px rgba(255, 150, 20, .2); }
+  .ico svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Screenshots */
+  .shots { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 20px 28px; margin-inline: calc(50% - 50vw); padding-inline: max(20px, calc(50vw - var(--max) / 2)); scrollbar-width: thin; }
+  .shots figure { margin: 0; flex: 0 0 auto; width: 240px; scroll-snap-align: center; }
+  .shots .frame { border-radius: 34px; padding: 7px; }
+  .shots img { border-radius: 27px; width: 100%; height: auto; }
+  .shots figcaption { margin-top: 12px; text-align: center; color: var(--text-2); font-size: .92rem; }
+
+  /* Plans */
+  .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .plan { padding: 32px; border-radius: var(--radius); }
+  .plan.premium { border-color: rgba(255, 215, 140, .65); background: linear-gradient(135deg, rgba(255, 190, 80, .30) 0%, rgba(255, 255, 255, .08) 58%, rgba(255, 170, 60, .16) 100%); box-shadow: 0 14px 50px rgba(255, 140, 20, .22), var(--glass-shadow); }
+  .plan h3 { margin: 0 0 4px; font-size: 1.4rem; }
+  .plan .sub { color: var(--text-3); margin: 0 0 16px; font-size: .95rem; }
+  .plan ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .plan li { display: flex; gap: 10px; color: var(--text-2); }
+  .plan li::before { content: ""; flex: 0 0 18px; height: 18px; margin-top: 4px; border-radius: 50%; background: rgba(255, 190, 80, .28) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffe2a3' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 12px no-repeat; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4); }
+  .note { margin-top: 18px; color: var(--text-3); font-size: .92rem; }
+
+  /* Privacy band */
+  .band { border-radius: 36px; padding: 44px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: center; background: var(--glass-fill-strong); }
+  .band ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; color: var(--text-2); }
+  .band li { padding-left: 28px; position: relative; }
+  .band li::before { content: ""; position: absolute; left: 0; top: .5em; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 5px rgba(255, 163, 26, .22), 0 0 16px rgba(255, 163, 26, .5); }
+  @media (max-width: 860px) { .band { grid-template-columns: 1fr; padding: 28px; } }
 
   /* Footer */
-  .footer {
-    text-align: center;
-    margin-top: 64px;
-    padding-top: 32px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    color: var(--text-muted);
-    font-size: 13px;
-  }
+  footer { padding: 28px 0 56px; color: var(--text-3); font-size: .93rem; }
+  .foot { display: flex; flex-wrap: wrap; gap: 18px 36px; justify-content: space-between; align-items: center; padding: 18px 26px; border-radius: 999px; }
+  .foot nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+  .foot a { color: var(--text-2); text-decoration: none; padding: 6px 0; }
+  .foot a:hover { color: #fff; text-decoration: underline; }
+
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn, .card { transition: none; } }
 </style>
 </head>
 <body>
-  <div class="page">
-    <header class="page-header">
-      <h1>GlassHome</h1>
-      <p>Familiar One UI usability · Vibrant glass icons · Premium translucency</p>
-    </header>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+<a class="skip" href="#main">Skip to content</a>
 
-    <div class="main-grid">
-      <!-- ========== SECTION 1: LAUNCHER PREVIEW ========== -->
-      <div class="phone-wrapper">
-        <div class="phone">
-          <div class="phone-screen">
-            <!-- Wallpapers -->
-            <div class="wallpaper blue active" data-wp="blue"></div>
-            <div class="wallpaper sunset" data-wp="sunset"></div>
-            <div class="wallpaper nature" data-wp="nature"></div>
-            <div class="ambient-glow" id="ambientGlow"></div>
+<header class="top">
+  <div class="wrap"><div class="bar">
+    <a class="brand" href="#top"><img src="assets/icon-192.png" alt="" width="32" height="32"><span>GlassHome</span></a>
+    <ul>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#screens">Screenshots</a></li>
+      <li><a href="#plans">Free &amp; Premium</a></li>
+      <li><a href="#privacy">Privacy</a></li>
+    </ul>
+    <a class="btn btn-primary" style="min-height:42px;padding:0 20px" href="https://play.google.com/store/apps/details?id=com.glasshome.launcher">Get it on Google Play</a>
+  </div></div>
+</header>
 
-            <!-- Status bar -->
-            <div class="status-bar">
-              <div class="status-left">
-                <span>9:41</span>
-              </div>
-              <div class="status-right">
-                <svg class="status-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/></svg>
-                <svg class="status-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-                <svg class="status-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
-              </div>
-            </div>
-
-            <!-- Home content -->
-            <div class="home-content">
-              <div class="clock-area">
-                <div class="clock-time" id="clockTime">9:41</div>
-                <div class="clock-date" id="clockDate">Sunday, 13 September</div>
-                <div class="weather-chip">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1z"/></svg>
-                  24° · Clear
-                </div>
-              </div>
-
-              <div class="search-bar">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-                <span class="search-placeholder">Search apps & web</span>
-                <svg class="search-mic" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1 1.93c-2.93-.39-5-2.92-5-5.93h2c0 2.21 1.79 4 4 4s4-1.79 4-4h2c0 3.01-2.07 5.54-5 5.93V19h2c.55 0 1 .45 1 1s-.45 1-1 1h-6c-.55 0-1-.45-1-1s.45-1 1-1h2v-2.07z"/></svg>
-              </div>
-
-              <!-- Main app grid -->
-              <div class="app-grid" id="appGrid">
-                <!-- Icons injected by JS -->
-              </div>
-
-              <div class="page-dots">
-                <div class="dot active"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-              </div>
-
-              <!-- Dock -->
-              <div class="dock" id="dock">
-                <!-- Dock icons injected by JS -->
-              </div>
-            </div>
-          </div>
-        </div>
-        <p style="font-size:13px;color:var(--text-muted);text-align:center;">Tap icons · Long-press for context menu</p>
+<main id="main">
+  <div class="wrap hero" id="top">
+    <div>
+      <span class="chip">Launcher for Android</span>
+      <h1>A home screen built around <em>your wallpaper</em>.</h1>
+      <p class="lede">The clock stands behind the subject of your photo, so your wallpaper wraps around the time. Frosted glass panes, a leaning dock, live wallpapers and icon packs, with no account and no tracking.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://play.google.com/store/apps/details?id=com.glasshome.launcher">Get it on Google Play</a>
+        <a class="btn btn-ghost" href="#features">See what it does</a>
       </div>
-
-      <!-- ========== CONTROLS ========== -->
-      <aside class="controls">
-        <h2>Live Controls</h2>
-
-        <div class="control-group">
-          <label>Wallpaper</label>
-          <div class="wallpaper-btns">
-            <button class="wp-btn blue active" data-wp="blue" title="Blue / Cyan"></button>
-            <button class="wp-btn sunset" data-wp="sunset" title="Sunset"></button>
-            <button class="wp-btn nature" data-wp="nature" title="Nature"></button>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>Appearance</label>
-          <div class="theme-toggle">
-            <button class="theme-btn active" data-theme="dark">Dark</button>
-            <button class="theme-btn" data-theme="light">Light</button>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>Icon Size</label>
-          <div class="slider-row">
-            <input type="range" id="iconSize" min="48" max="72" value="58">
-            <span class="slider-value" id="iconSizeVal">58px</span>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>Icon Spacing</label>
-          <div class="slider-row">
-            <input type="range" id="iconGap" min="12" max="32" value="22">
-            <span class="slider-value" id="iconGapVal">22px</span>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>Glass Opacity</label>
-          <div class="slider-row">
-            <input type="range" id="glassOpacity" min="20" max="80" value="55">
-            <span class="slider-value" id="glassOpacityVal">55%</span>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>Blur Intensity</label>
-          <div class="slider-row">
-            <input type="range" id="blurIntensity" min="8" max="32" value="18">
-            <span class="slider-value" id="blurIntensityVal">18px</span>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>Highlight Strength</label>
-          <div class="slider-row">
-            <input type="range" id="highlightInt" min="20" max="90" value="55">
-            <span class="slider-value" id="highlightIntVal">55%</span>
-          </div>
-        </div>
-      </aside>
+      <p class="meta">Free to use. Android 9 or newer. Premium is optional.</p>
     </div>
-
-    <!-- ========== SECTION 2: ICON DESIGN SHOWCASE ========== -->
-    <section class="showcase">
-      <h2>Vibrant Glass Icon System</h2>
-      <p>Each icon is a unique organic glass form with vibrant identity gradients, soft internal reflections, and a simplified glyph. No generic rounded squares.</p>
-
-      <div class="icon-system-grid" id="showcaseGrid">
-        <!-- Populated by JS -->
-      </div>
-
-      <div class="philosophy">
-        <div class="phil-card">
-          <h4>Shape</h4>
-          <p>Organic rounded geometry — unique silhouettes per app, never a forced circle or rounded square.</p>
-        </div>
-        <div class="phil-card">
-          <h4>Material</h4>
-          <p>Colorful translucent glass with layered gradients and soft frosted surface.</p>
-        </div>
-        <div class="phil-card">
-          <h4>Lighting</h4>
-          <p>Soft top/side specular highlight + subtle internal refraction.</p>
-        </div>
-        <div class="phil-card">
-          <h4>Glyph</h4>
-          <p>Simplified, recognizable app symbol centered and high-contrast against the glass.</p>
-        </div>
-        <div class="phil-card">
-          <h4>Depth</h4>
-          <p>Restrained layered shadow — feels lifted but never heavy or skeuomorphic.</p>
-        </div>
-        <div class="phil-card">
-          <h4>Color</h4>
-          <p>App identity preserved through vibrant, harmonious gradients.</p>
-        </div>
-      </div>
-
-      <h2 style="margin-top:48px;margin-bottom:16px;font-size:1.3rem;">Design Tokens</h2>
-      <div class="tokens-card">
-        <div class="token">
-          <span class="token-name">Recommended Icon Size</span>
-          <span class="token-value">56–64 px (default 58 px)</span>
-        </div>
-        <div class="token">
-          <span class="token-name">Grid Size</span>
-          <span class="token-value">4 columns · comfortable gaps</span>
-        </div>
-        <div class="token">
-          <span class="token-name">Corner-Radius Philosophy</span>
-          <span class="token-value">Organic / variable (12–28 px range)</span>
-        </div>
-        <div class="token">
-          <span class="token-name">Glass Opacity</span>
-          <span class="token-value">0.45 – 0.70 (default 0.55)</span>
-        </div>
-        <div class="token">
-          <span class="token-name">Blur Range</span>
-          <span class="token-value">12 – 28 px (default 18 px)</span>
-        </div>
-        <div class="token">
-          <span class="token-name">Shadow Depth</span>
-          <span class="token-value">Soft · 4–12 px blur · low opacity</span>
-        </div>
-        <div class="token">
-          <span class="token-name">Highlight Intensity</span>
-          <span class="token-value">0.4 – 0.7 opacity top edge</span>
-        </div>
-        <div class="token">
-          <span class="token-name">Typography Scale</span>
-          <span class="token-value">Clock 64 · Labels 11–12 · UI 13–14</span>
-        </div>
-      </div>
-    </section>
-
-    <footer class="footer">
-      GlassHome Prototype · Single-file HTML · Pure CSS + Vanilla JS · 2026 concept
-    </footer>
+    <div class="phones" aria-hidden="false">
+      <div class="phone side left"><img src="assets/3_today_glass_widgets.jpg" alt="GlassHome Today page with frosted glass widgets" loading="lazy"></div>
+      <div class="phone main"><img src="assets/1_home_3d_clock_depth.jpg" alt="GlassHome home screen with a 3D clock standing behind a glass wallpaper" width="560" height="1257"></div>
+      <div class="phone side right"><img src="assets/2_app_drawer_glass_icons.jpg" alt="GlassHome app drawer with glass icons" loading="lazy"></div>
+    </div>
   </div>
 
-<script>
-/* ============================================
-   ICON DEFINITIONS — Vibrant Glass SVGs
-   ============================================ */
-const ICONS = [
-  {
-    id: "phone",
-    name: "Phone",
-    // Soft rounded blob, teal-cyan
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-phone" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#5eead4"/>
-          <stop offset="50%" stop-color="#2dd4bf"/>
-          <stop offset="100%" stop-color="#0d9488"/>
-        </linearGradient>
-        <linearGradient id="h-phone" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.55"/>
-          <stop offset="40%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-        <filter id="blur-phone"><feGaussianBlur stdDeviation="0.8"/></filter>
-      </defs>
-      <path d="M18 8 C12 10 8 18 9 28 C10 42 16 52 28 56 C40 60 52 54 56 42 C60 30 54 16 42 10 C34 6 24 6 18 8Z" fill="url(#g-phone)" opacity="0.92"/>
-      <path d="M18 8 C12 10 8 18 9 28 C10 42 16 52 28 56 C40 60 52 54 56 42 C60 30 54 16 42 10 C34 6 24 6 18 8Z" fill="url(#h-phone)"/>
-      <path d="M26 22 L26 42 L38 42 L38 22 Z" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
-      <circle cx="32" cy="46" r="1.8" fill="#fff" opacity="0.9"/>
-    </svg>`
-  },
-  {
-    id: "messages",
-    name: "Messages",
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-msg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#93c5fd"/>
-          <stop offset="50%" stop-color="#3b82f6"/>
-          <stop offset="100%" stop-color="#1d4ed8"/>
-        </linearGradient>
-        <linearGradient id="h-msg" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
-          <stop offset="45%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d="M12 14 C10 14 8 16 8 20 L8 40 C8 44 10 46 14 46 L20 46 L26 54 L26 46 L50 46 C54 46 56 44 56 40 L56 20 C56 16 54 14 50 14 Z" fill="url(#g-msg)" opacity="0.92"/>
-      <path d="M12 14 C10 14 8 16 8 20 L8 40 C8 44 10 46 14 46 L20 46 L26 54 L26 46 L50 46 C54 46 56 44 56 40 L56 20 C56 16 54 14 50 14 Z" fill="url(#h-msg)"/>
-      <circle cx="22" cy="30" r="2.6" fill="#fff" opacity="0.95"/>
-      <circle cx="32" cy="30" r="2.6" fill="#fff" opacity="0.95"/>
-      <circle cx="42" cy="30" r="2.6" fill="#fff" opacity="0.95"/>
-    </svg>`
-  },
-  {
-    id: "whatsapp",
-    name: "WhatsApp",
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-wa" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#6ee7b7"/>
-          <stop offset="50%" stop-color="#22c55e"/>
-          <stop offset="100%" stop-color="#15803d"/>
-        </linearGradient>
-        <linearGradient id="h-wa" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
-          <stop offset="40%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d="M32 6 C18 6 8 16 8 30 C8 36 10 42 14 46 L10 56 L21 52 C24 54 28 56 32 56 C46 56 56 46 56 32 C56 18 46 6 32 6Z" fill="url(#g-wa)" opacity="0.92"/>
-      <path d="M32 6 C18 6 8 16 8 30 C8 36 10 42 14 46 L10 56 L21 52 C24 54 28 56 32 56 C46 56 56 46 56 32 C56 18 46 6 32 6Z" fill="url(#h-wa)"/>
-      <path d="M26 24 C27 22 29 21 31 22 C33 23 34 25 34 27 C34 29 33 31 31 32 L29 33 C28 34 28 36 29 37 C31 39 34 40 37 40 C40 40 42 38 43 35" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity="0.95"/>
-    </svg>`
-  },
-  {
-    id: "youtube",
-    name: "YouTube",
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-yt" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#fca5a5"/>
-          <stop offset="40%" stop-color="#ef4444"/>
-          <stop offset="100%" stop-color="#b91c1c"/>
-        </linearGradient>
-        <linearGradient id="h-yt" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
-          <stop offset="45%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d="M10 20 C10 14 14 10 22 10 L42 10 C50 10 54 14 54 20 L54 44 C54 50 50 54 42 54 L22 54 C14 54 10 50 10 44 Z" fill="url(#g-yt)" opacity="0.93"/>
-      <path d="M10 20 C10 14 14 10 22 10 L42 10 C50 10 54 14 54 20 L54 44 C54 50 50 54 42 54 L22 54 C14 54 10 50 10 44 Z" fill="url(#h-yt)"/>
-      <path d="M28 22 L28 42 L44 32 Z" fill="#fff" opacity="0.95"/>
-    </svg>`
-  },
-  {
-    id: "chrome",
-    name: "Chrome",
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-ch" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#fde047"/>
-          <stop offset="35%" stop-color="#f97316"/>
-          <stop offset="70%" stop-color="#22c55e"/>
-          <stop offset="100%" stop-color="#3b82f6"/>
-        </linearGradient>
-        <linearGradient id="h-ch" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.45"/>
-          <stop offset="40%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <circle cx="32" cy="32" r="24" fill="url(#g-ch)" opacity="0.9"/>
-      <circle cx="32" cy="32" r="24" fill="url(#h-ch)"/>
-      <circle cx="32" cy="32" r="10" fill="rgba(255,255,255,0.25)"/>
-      <circle cx="32" cy="32" r="7" fill="#fff" opacity="0.95"/>
-      <path d="M32 8 L42 28 L22 28 Z" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.3"/>
-    </svg>`
-  },
-  {
-    id: "instagram",
-    name: "Instagram",
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-ig" x1="0%" y1="100%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#f59e0b"/>
-          <stop offset="30%" stop-color="#ef4444"/>
-          <stop offset="60%" stop-color="#ec4899"/>
-          <stop offset="100%" stop-color="#8b5cf6"/>
-        </linearGradient>
-        <linearGradient id="h-ig" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
-          <stop offset="40%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d="M18 8 C12 8 8 12 8 18 L8 46 C8 52 12 56 18 56 L46 56 C52 56 56 52 56 46 L56 18 C56 12 52 8 46 8 Z" fill="url(#g-ig)" opacity="0.92"/>
-      <path d="M18 8 C12 8 8 12 8 18 L8 46 C8 52 12 56 18 56 L46 56 C52 56 56 52 56 46 L56 18 C56 12 52 8 46 8 Z" fill="url(#h-ig)"/>
-      <circle cx="32" cy="32" r="11" fill="none" stroke="#fff" stroke-width="2.8" opacity="0.95"/>
-      <circle cx="44" cy="20" r="3" fill="#fff" opacity="0.95"/>
-    </svg>`
-  },
-  {
-    id: "spotify",
-    name: "Spotify",
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-sp" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#86efac"/>
-          <stop offset="50%" stop-color="#22c55e"/>
-          <stop offset="100%" stop-color="#166534"/>
-        </linearGradient>
-        <linearGradient id="h-sp" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
-          <stop offset="40%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <circle cx="32" cy="32" r="24" fill="url(#g-sp)" opacity="0.92"/>
-      <circle cx="32" cy="32" r="24" fill="url(#h-sp)"/>
-      <path d="M18 28 C26 24 38 24 46 28" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.95"/>
-      <path d="M20 35 C27 32 37 32 44 35" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity="0.9"/>
-      <path d="M22 42 C28 40 36 40 42 42" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
-    </svg>`
-  },
-  {
-    id: "gmail",
-    name: "Gmail",
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-gm" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#fca5a5"/>
-          <stop offset="40%" stop-color="#ef4444"/>
-          <stop offset="100%" stop-color="#b91c1c"/>
-        </linearGradient>
-        <linearGradient id="h-gm" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
-          <stop offset="40%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d="M10 16 C10 12 13 10 18 10 L46 10 C51 10 54 12 54 16 L54 48 C54 52 51 54 46 54 L18 54 C13 54 10 52 10 48 Z" fill="url(#g-gm)" opacity="0.92"/>
-      <path d="M10 16 C10 12 13 10 18 10 L46 10 C51 10 54 12 54 16 L54 48 C54 52 51 54 46 54 L18 54 C13 54 10 52 10 48 Z" fill="url(#h-gm)"/>
-      <path d="M12 18 L32 34 L52 18" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
-      <path d="M12 18 L12 46 L52 46 L52 18" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.35"/>
-    </svg>`
-  },
-  {
-    id: "camera",
-    name: "Camera",
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-cam" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#a5b4fc"/>
-          <stop offset="50%" stop-color="#6366f1"/>
-          <stop offset="100%" stop-color="#4338ca"/>
-        </linearGradient>
-        <linearGradient id="h-cam" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
-          <stop offset="40%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d="M14 18 C12 18 10 20 10 24 L10 46 C10 50 12 52 16 52 L48 52 C52 52 54 50 54 46 L54 24 C54 20 52 18 50 18 L44 18 L40 12 L24 12 L20 18 Z" fill="url(#g-cam)" opacity="0.92"/>
-      <path d="M14 18 C12 18 10 20 10 24 L10 46 C10 50 12 52 16 52 L48 52 C52 52 54 50 54 46 L54 24 C54 20 52 18 50 18 L44 18 L40 12 L24 12 L20 18 Z" fill="url(#h-cam)"/>
-      <circle cx="32" cy="34" r="10" fill="none" stroke="#fff" stroke-width="2.8" opacity="0.95"/>
-      <circle cx="32" cy="34" r="4.5" fill="#fff" opacity="0.4"/>
-    </svg>`
-  },
-  {
-    id: "gallery",
-    name: "Gallery",
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-gal" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#c4b5fd"/>
-          <stop offset="50%" stop-color="#a78bfa"/>
-          <stop offset="100%" stop-color="#7c3aed"/>
-        </linearGradient>
-        <linearGradient id="h-gal" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
-          <stop offset="40%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d="M12 14 C10 14 8 16 8 20 L8 44 C8 48 10 50 14 50 L50 50 C54 50 56 48 56 44 L56 20 C56 16 54 14 50 14 Z" fill="url(#g-gal)" opacity="0.92"/>
-      <path d="M12 14 C10 14 8 16 8 20 L8 44 C8 48 10 50 14 50 L50 50 C54 50 56 48 56 44 L56 20 C56 16 54 14 50 14 Z" fill="url(#h-gal)"/>
-      <circle cx="22" cy="26" r="4" fill="#fff" opacity="0.9"/>
-      <path d="M10 42 L24 30 L34 38 L42 28 L54 42" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-    </svg>`
-  },
-  {
-    id: "maps",
-    name: "Maps",
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-maps" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#86efac"/>
-          <stop offset="40%" stop-color="#22c55e"/>
-          <stop offset="100%" stop-color="#0ea5e9"/>
-        </linearGradient>
-        <linearGradient id="h-maps" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
-          <stop offset="40%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d="M32 6 C22 6 14 14 14 26 C14 40 32 58 32 58 C32 58 50 40 50 26 C50 14 42 6 32 6Z" fill="url(#g-maps)" opacity="0.92"/>
-      <path d="M32 6 C22 6 14 14 14 26 C14 40 32 58 32 58 C32 58 50 40 50 26 C50 14 42 6 32 6Z" fill="url(#h-maps)"/>
-      <circle cx="32" cy="26" r="8" fill="#fff" opacity="0.95"/>
-      <circle cx="32" cy="26" r="3.5" fill="url(#g-maps)" opacity="0.8"/>
-    </svg>`
-  },
-  {
-    id: "settings",
-    name: "Settings",
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-set" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#cbd5e1"/>
-          <stop offset="50%" stop-color="#94a3b8"/>
-          <stop offset="100%" stop-color="#64748b"/>
-        </linearGradient>
-        <linearGradient id="h-set" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
-          <stop offset="40%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d="M28 8 L36 8 L38 14 L46 17 L52 12 L58 18 L53 26 L56 34 L62 36 L62 44 L56 46 L53 54 L58 60 L52 66 L46 61 L38 64 L36 70 L28 70 L26 64 L18 61 L12 66 L6 60 L11 54 L8 46 L2 44 L2 36 L8 34 L11 26 L6 18 L12 12 L18 17 L26 14 Z" fill="url(#g-set)" opacity="0.9" transform="scale(0.82) translate(7, -4)"/>
-      <circle cx="32" cy="32" r="9" fill="none" stroke="#fff" stroke-width="3" opacity="0.95"/>
-      <circle cx="32" cy="32" r="4" fill="#fff" opacity="0.35"/>
-    </svg>`
-  },
-  {
-    id: "calendar",
-    name: "Calendar",
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-cal" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#fda4af"/>
-          <stop offset="50%" stop-color="#f43f5e"/>
-          <stop offset="100%" stop-color="#be123c"/>
-        </linearGradient>
-        <linearGradient id="h-cal" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
-          <stop offset="40%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d="M14 12 C12 12 10 14 10 18 L10 50 C10 54 12 56 16 56 L48 56 C52 56 54 54 54 50 L54 18 C54 14 52 12 50 12 Z" fill="url(#g-cal)" opacity="0.92"/>
-      <path d="M14 12 C12 12 10 14 10 18 L10 50 C10 54 12 56 16 56 L48 56 C52 56 54 54 54 50 L54 18 C54 14 52 12 50 12 Z" fill="url(#h-cal)"/>
-      <rect x="10" y="12" width="44" height="12" rx="2" fill="#fff" opacity="0.25"/>
-      <text x="32" y="44" text-anchor="middle" font-size="18" font-weight="700" fill="#fff" opacity="0.95" font-family="system-ui">13</text>
-    </svg>`
-  },
-  {
-    id: "files",
-    name: "Files",
-    svg: `
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g-files" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#fcd34d"/>
-          <stop offset="50%" stop-color="#f59e0b"/>
-          <stop offset="100%" stop-color="#d97706"/>
-        </linearGradient>
-        <linearGradient id="h-files" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
-          <stop offset="40%" stop-color="#fff" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d="M12 14 C10 14 8 16 8 20 L8 48 C8 52 10 54 14 54 L50 54 C54 54 56 52 56 48 L56 24 C56 20 54 18 50 18 L30 18 L26 14 Z" fill="url(#g-files)" opacity="0.92"/>
-      <path d="M12 14 C10 14 8 16 8 20 L8 48 C8 52 10 54 14 54 L50 54 C54 54 56 52 56 48 L56 24 C56 20 54 18 50 18 L30 18 L26 14 Z" fill="url(#h-files)"/>
-      <path d="M16 28 L48 28 M16 36 L40 36 M16 44 L36 44" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
-    </svg>`
-  }
-];
-
-const DOCK_IDS = ["phone", "messages", "chrome", "camera"];
-
-/* ============================================
-   RENDER HELPERS
-   ============================================ */
-function createIconElement(icon, showLabel = true) {
-  const el = document.createElement("div");
-  el.className = "app-icon";
-  el.dataset.id = icon.id;
-
-  el.innerHTML = `
-    <div class="icon-surface">
-      ${icon.svg}
-      <div class="context-menu">
-        <div class="context-item">App info</div>
-        <div class="context-item">Uninstall</div>
-        <div class="context-item">Hide</div>
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Beautiful, and quick on modest phones</h2>
+        <p>Everything is built to look like glass without feeling heavy. A lite glass mode keeps things smooth on phones with 4 GB of RAM or less.</p>
+      </div>
+      <div class="grid">
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Depth clock</h3><p>The time sits inside your wallpaper, behind its subject. Depth is free on the Tideline wallpaper; Premium brings it to any wallpaper and any clock.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M3 10h18"/></svg></div><h3>Frosted glass</h3><p>Glass panes, a leaning dock and smooth page transitions. Light, dark and Amoled themes.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></div><h3>Icons your way</h3><p>Icon styles, installed icon packs, and sizes from Small to Huge.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 15l5-5 4 4 3-3 6 6"/></svg></div><h3>Wallpapers</h3><p>Live wallpapers, or your own photo with adjustable blur and dim.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg></div><h3>Glass widgets</h3><p>Clock, weather, calendar, month view, battery, system and music widgets, plus any Android widget you already use.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div><h3>An organised drawer</h3><p>Suggestions, fast search, automatic groups, folders, hidden apps and renamed apps. Ready-made folders on a new phone.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M8 11V6a2 2 0 014 0v5m0 0V4a2 2 0 014 0v8m0 0V7a2 2 0 014 0v8a6 6 0 01-6 6h-2a6 6 0 01-5-3l-3-5a2 2 0 013-2l2 2"/></svg></div><h3>Gestures &amp; Control Centre</h3><p>Swipes and pinches for your own shortcuts, a glass Control Centre, and double-tap to lock.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg></div><h3>Share your setup</h3><p>Share a picture of your home screen in one tap. Private widgets stay hidden unless you choose to show them.</p></article>
       </div>
     </div>
-    ${showLabel ? `<span class="icon-label">${icon.name}</span>` : ""}
-  `;
+  </section>
 
-  // Interactions
-  let pressTimer = null;
-  let isLifted = false;
+  <section id="screens">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>See it in action</h2>
+        <p>Swipe through a few screens.</p>
+      </div>
+    </div>
+    <div class="shots" tabindex="0" aria-label="GlassHome screenshots">
+      <figure><div class="frame"><img src="assets/1_home_3d_clock_depth.jpg" alt="Home screen with a 3D depth clock" loading="lazy" width="560" height="1257"></div><figcaption>Depth clock</figcaption></figure>
+      <figure><div class="frame"><img src="assets/2_app_drawer_glass_icons.jpg" alt="App drawer with glass icons" loading="lazy" width="560" height="1257"></div><figcaption>Glass app drawer</figcaption></figure>
+      <figure><div class="frame"><img src="assets/3_today_glass_widgets.jpg" alt="Today page with glass widgets" loading="lazy" width="560" height="1257"></div><figcaption>Today widgets</figcaption></figure>
+      <figure><div class="frame"><img src="assets/5_clock_3d_style_picker.jpg" alt="Clock style picker" loading="lazy" width="560" height="1257"></div><figcaption>Clock styles</figcaption></figure>
+      <figure><div class="frame"><img src="assets/6_depth_effect_settings.jpg" alt="Depth effect settings" loading="lazy" width="560" height="1257"></div><figcaption>Depth effect</figcaption></figure>
+      <figure><div class="frame"><img src="assets/7_control_centre.jpg" alt="Glass Control Centre" loading="lazy" width="560" height="1257"></div><figcaption>Control Centre</figcaption></figure>
+      <figure><div class="frame"><img src="assets/8_appearance_icon_style.jpg" alt="Appearance and icon style settings" loading="lazy" width="560" height="1257"></div><figcaption>Icon styles</figcaption></figure>
+      <figure><div class="frame"><img src="assets/4_premium_features.jpg" alt="GlassHome Premium features" loading="lazy" width="560" height="1257"></div><figcaption>Premium</figcaption></figure>
+      <figure><div class="frame"><img src="assets/phone_home.jpg" alt="GlassHome home screen with the Tall clock and glass dock" loading="lazy" width="560" height="1156"></div><figcaption>Tall clock and glass dock</figcaption></figure>
+      <figure><div class="frame"><img src="assets/phone_settings.jpg" alt="GlassHome settings home" loading="lazy" width="560" height="1138"></div><figcaption>Settings</figcaption></figure>
+      <figure><div class="frame"><img src="assets/phone_appearance.jpg" alt="Appearance settings with theme, icon style and glass effects" loading="lazy" width="560" height="1138"></div><figcaption>Appearance</figcaption></figure>
+      <figure><div class="frame"><img src="assets/phone_clock.jpg" alt="Clock settings with style and colour choices" loading="lazy" width="560" height="1138"></div><figcaption>Clock studio</figcaption></figure>
+      <figure><div class="frame"><img src="assets/phone_gestures.jpg" alt="Gesture settings" loading="lazy" width="560" height="1138"></div><figcaption>Gestures</figcaption></figure>
+      <figure><div class="frame"><img src="assets/phone_drawer_settings.jpg" alt="App drawer settings" loading="lazy" width="560" height="1138"></div><figcaption>App drawer options</figcaption></figure>
+    </div>
+  </section>
 
-  el.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0) return;
-    pressTimer = setTimeout(() => {
-      el.classList.add("lifted");
-      isLifted = true;
-    }, 480);
-  });
+  <section id="plans">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Free, with an optional Premium</h2>
+        <p>The core launcher is free. Premium unlocks the extras and removes every ad.</p>
+      </div>
+      <div class="plans">
+        <div class="plan">
+          <h3>Free</h3>
+          <p class="sub">Everything you need to start</p>
+          <ul>
+            <li>The home screen, search and the app drawer</li>
+            <li>Minimal and Tall clocks</li>
+            <li>Glass and Polished icons</li>
+            <li>Standard glass, with Slide, Fade and Flip transitions</li>
+            <li>Depth on the Tideline wallpaper</li>
+          </ul>
+        </div>
+        <div class="plan premium">
+          <h3>Premium</h3>
+          <p class="sub">Everything in Free, plus</p>
+          <ul>
+            <li>No ads</li>
+            <li>Depth effect on any wallpaper, with every clock style</li>
+            <li>Icons your way: packs, large sizes, your own icon for any app</li>
+            <li>Leaning dock</li>
+            <li>Gestures and double-tap to lock</li>
+            <li>Glass and motion: stronger or softer blur, extra page turns, Amoled theme</li>
+            <li>Layouts, groups and hidden apps</li>
+            <li>GlassHour: today's time in the apps you open from GlassHome</li>
+          </ul>
+        </div>
+      </div>
+      <p class="note">Plans are billed through Google Play and can be cancelled any time. The free version shows ads through Google AdMob.</p>
+    </div>
+  </section>
 
-  el.addEventListener("pointerup", () => {
-    clearTimeout(pressTimer);
-    if (isLifted) {
-      setTimeout(() => {
-        el.classList.remove("lifted");
-        isLifted = false;
-      }, 1800);
-    }
-  });
+  <section id="privacy">
+    <div class="wrap">
+      <div class="band">
+        <div>
+          <h2>Private by design</h2>
+          <p style="color:var(--text-2);margin:0 0 20px">GlassHome sees which apps you have installed because a launcher has to. It keeps that on your phone.</p>
+          <a class="btn btn-ghost" href="priv.glasshome/">Read the privacy policy</a>
+        </div>
+        <ul>
+          <li>No account needed, ever.</li>
+          <li>No analytics. Your app list, layout and searches stay on your device.</li>
+          <li>Weather sends only the city you choose to Open-Meteo.</li>
+          <li>Purchases go through Google Play.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
 
-  el.addEventListener("pointerleave", () => {
-    clearTimeout(pressTimer);
-  });
-
-  // Close context on outside click
-  document.addEventListener("pointerdown", (e) => {
-    if (!el.contains(e.target) && isLifted) {
-      el.classList.remove("lifted");
-      isLifted = false;
-    }
-  });
-
-  return el;
-}
-
-function renderGrid() {
-  const grid = document.getElementById("appGrid");
-  grid.innerHTML = "";
-  // Show 12 icons on home (first 12)
-  ICONS.slice(0, 12).forEach(icon => {
-    grid.appendChild(createIconElement(icon, true));
-  });
-}
-
-function renderDock() {
-  const dock = document.getElementById("dock");
-  dock.innerHTML = "";
-  DOCK_IDS.forEach(id => {
-    const icon = ICONS.find(i => i.id === id);
-    if (icon) {
-      const el = createIconElement(icon, false);
-      dock.appendChild(el);
-    }
-  });
-}
-
-function renderShowcase() {
-  const grid = document.getElementById("showcaseGrid");
-  grid.innerHTML = "";
-  ICONS.forEach(icon => {
-    const item = document.createElement("div");
-    item.className = "showcase-item";
-    item.innerHTML = `
-      <div class="icon-surface">${icon.svg}</div>
-      <span class="icon-label">${icon.name}</span>
-    `;
-    grid.appendChild(item);
-  });
-}
-
-/* ============================================
-   CONTROLS
-   ============================================ */
-function setWallpaper(name) {
-  document.querySelectorAll(".wallpaper").forEach(w => {
-    w.classList.toggle("active", w.dataset.wp === name);
-  });
-  document.querySelectorAll(".wp-btn").forEach(b => {
-    b.classList.toggle("active", b.dataset.wp === name);
-  });
-
-  // Subtle ambient adjustment
-  const glow = document.getElementById("ambientGlow");
-  if (name === "blue") {
-    glow.style.background = "radial-gradient(ellipse at 50% 30%, rgba(0,180,255,0.15), transparent 60%)";
-  } else if (name === "sunset") {
-    glow.style.background = "radial-gradient(ellipse at 60% 20%, rgba(255,120,60,0.2), transparent 55%)";
-  } else {
-    glow.style.background = "radial-gradient(ellipse at 40% 40%, rgba(60,200,120,0.15), transparent 60%)";
-  }
-}
-
-function setTheme(theme) {
-  document.documentElement.setAttribute("data-theme", theme);
-  document.querySelectorAll(".theme-btn").forEach(b => {
-    b.classList.toggle("active", b.dataset.theme === theme);
-  });
-}
-
-function bindControls() {
-  // Wallpaper
-  document.querySelectorAll(".wp-btn").forEach(btn => {
-    btn.addEventListener("click", () => setWallpaper(btn.dataset.wp));
-  });
-
-  // Theme
-  document.querySelectorAll(".theme-btn").forEach(btn => {
-    btn.addEventListener("click", () => setTheme(btn.dataset.theme));
-  });
-
-  // Icon size
-  const sizeSlider = document.getElementById("iconSize");
-  sizeSlider.addEventListener("input", () => {
-    const v = sizeSlider.value;
-    document.documentElement.style.setProperty("--icon-size", v + "px");
-    document.getElementById("iconSizeVal").textContent = v + "px";
-  });
-
-  // Gap
-  const gapSlider = document.getElementById("iconGap");
-  gapSlider.addEventListener("input", () => {
-    const v = gapSlider.value;
-    document.documentElement.style.setProperty("--icon-gap", v + "px");
-    document.getElementById("iconGapVal").textContent = v + "px";
-  });
-
-  // Glass opacity
-  const glassSlider = document.getElementById("glassOpacity");
-  glassSlider.addEventListener("input", () => {
-    const v = glassSlider.value / 100;
-    document.documentElement.style.setProperty("--glass-opacity", v);
-    // Also update glass backgrounds
-    document.documentElement.style.setProperty("--glass-bg", `rgba(255,255,255,${v * 0.22})`);
-    document.getElementById("glassOpacityVal").textContent = glassSlider.value + "%";
-  });
-
-  // Blur
-  const blurSlider = document.getElementById("blurIntensity");
-  blurSlider.addEventListener("input", () => {
-    const v = blurSlider.value;
-    document.documentElement.style.setProperty("--blur-intensity", v + "px");
-    document.getElementById("blurIntensityVal").textContent = v + "px";
-  });
-
-  // Highlight
-  const hiSlider = document.getElementById("highlightInt");
-  hiSlider.addEventListener("input", () => {
-    const v = hiSlider.value / 100;
-    document.documentElement.style.setProperty("--highlight-intensity", v);
-    document.getElementById("highlightIntVal").textContent = hiSlider.value + "%";
-  });
-}
-
-/* Live clock */
-function updateClock() {
-  const now = new Date();
-  const h = now.getHours();
-  const m = now.getMinutes().toString().padStart(2, "0");
-  document.getElementById("clockTime").textContent = `${h}:${m}`;
-  const options = { weekday: "long", day: "numeric", month: "long" };
-  document.getElementById("clockDate").textContent = now.toLocaleDateString("en-GB", options);
-}
-
-/* Init */
-document.addEventListener("DOMContentLoaded", () => {
-  renderGrid();
-  renderDock();
-  renderShowcase();
-  bindControls();
-  updateClock();
-  setInterval(updateClock, 30000);
-  setWallpaper("blue");
-  setTheme("dark");
-});
-</script>
+<footer>
+  <div class="wrap"><div class="foot glass">
+    <span>&copy; <span id="y">2026</span> GlassHome</span>
+    <nav aria-label="Footer">
+      <a href="https://play.google.com/store/apps/details?id=com.glasshome.launcher">Google Play</a>
+      <a href="priv.glasshome/">Privacy policy</a>
+      <a href="mailto:glasshome.2627@gmail.com">Contact</a>
+    </nav>
+  </div></div>
+</footer>
+<script>document.getElementById('y').textContent = new Date().getFullYear();</script>
 </body>
 </html>

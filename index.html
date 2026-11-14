@@ -7,13 +7,15 @@
 <meta name="description" content="GlassHome is a premium glass launcher for Android: a depth-effect clock that lives inside your wallpaper, frosted glass widgets, live wallpapers, icon packs and deep customization. No account, no analytics.">
 <meta name="theme-color" content="#07090f">
 <link rel="canonical" href="https://rm10490-wq.github.io/">
-<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
-<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2">
 <meta property="og:type" content="website">
 <meta property="og:title" content="GlassHome: Glass Launcher for Android">
 <meta property="og:description" content="A home screen built around your wallpaper. Depth clock, frosted glass, live wallpapers. No account, no analytics.">
 <meta property="og:url" content="https://rm10490-wq.github.io/">
 <meta property="og:image" content="https://rm10490-wq.github.io/assets/og.jpg">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="500">
 <meta name="twitter:card" content="summary_large_image">
 <style>
   :root {
@@ -42,12 +44,29 @@
     background: linear-gradient(160deg, #0a1030 0%, #150f33 48%, #0b1a2e 100%) fixed;
     min-height: 100vh; overflow-x: hidden;
   }
-  /* Colour for the glass to refract: three soft blurred orbs behind everything. */
+  /* Colour for the glass to refract: soft blurred orbs behind everything, drifting slowly so the
+     frosted panels always have something moving to bend. Only transform is animated (cheap on the
+     GPU), and it is off for people who ask for reduced motion. */
   .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
-  .bg i { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .62; }
-  .bg i:nth-child(1) { width: 560px; height: 560px; left: -140px; top: -120px; background: radial-gradient(circle at 35% 35%, #4f7bff, #2b3fb8 70%); }
-  .bg i:nth-child(2) { width: 520px; height: 520px; right: -160px; top: 120px; background: radial-gradient(circle at 40% 40%, #ffb13d, #e0600f 72%); opacity: .5; }
-  .bg i:nth-child(3) { width: 620px; height: 620px; left: 28%; bottom: -260px; background: radial-gradient(circle at 50% 40%, #9a5cff, #4a2a9e 72%); opacity: .5; }
+  .bg i { position: absolute; border-radius: 50%; filter: blur(46px); opacity: .85; will-change: transform; mix-blend-mode: screen; }
+  .bg i:nth-child(1) { width: 620px; height: 620px; left: -8vw; top: -10vh; background: radial-gradient(circle at 35% 35%, #5b86ff, #2b3fb8 70%); animation: drift-a 14s ease-in-out infinite alternate; }
+  .bg i:nth-child(2) { width: 580px; height: 580px; right: -8vw; top: 6vh; background: radial-gradient(circle at 40% 40%, #ffbe4d, #e8630f 72%); opacity: .75; animation: drift-b 17s ease-in-out infinite alternate; }
+  .bg i:nth-child(3) { width: 680px; height: 680px; left: 30vw; bottom: -22vh; background: radial-gradient(circle at 50% 40%, #a768ff, #4a2a9e 72%); opacity: .75; animation: drift-c 19s ease-in-out infinite alternate; }
+  .bg i:nth-child(4) { width: 460px; height: 460px; left: 48vw; top: 4vh; background: radial-gradient(circle at 40% 40%, #34e0d2, #0d8aa6 72%); opacity: .6; animation: drift-d 15s ease-in-out infinite alternate; }
+  .bg i:nth-child(5) { width: 420px; height: 420px; left: 2vw; top: 48vh; background: radial-gradient(circle at 40% 40%, #ff68ab, #b3226a 72%); opacity: .55; animation: drift-e 16s ease-in-out infinite alternate; }
+  @keyframes drift-a { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(48vw, 42vh) scale(1.25); } }
+  @keyframes drift-b { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-46vw, 50vh) scale(.85); } }
+  @keyframes drift-c { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-44vw, -46vh) scale(1.2); } }
+  @keyframes drift-d { 0% { transform: translate(0, 0) scale(.9); } 100% { transform: translate(-40vw, 58vh) scale(1.35); } }
+  @keyframes drift-e { 0% { transform: translate(0, 0) scale(1.1); } 100% { transform: translate(52vw, -30vh) scale(.8); } }
+  @media (max-width: 760px) {
+    .bg i { filter: blur(36px); }
+    .bg i:nth-child(1) { width: 380px; height: 380px; }
+    .bg i:nth-child(2) { width: 340px; height: 340px; }
+    .bg i:nth-child(3) { width: 400px; height: 400px; }
+    .bg i:nth-child(4), .bg i:nth-child(5) { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .bg i { animation: none; } }
   img { max-width: 100%; display: block; }
   a { color: inherit; }
   .wrap { width: min(var(--max), 100% - 40px); margin-inline: auto; }
@@ -56,7 +75,7 @@
   :focus-visible { outline: 3px solid var(--accent-2); outline-offset: 3px; border-radius: 8px; }
 
   /* Every frosted surface */
-  .glass, .card, .plan, .band, header.top .bar, .btn-ghost, .shots figure .frame, .phone, .chip {
+  .glass, .card, .plan, .band, .poster, .compare, header.top .bar, .btn-ghost, .shots figure .frame, .phone, .chip {
     background: var(--glass-fill);
     border: 1px solid var(--glass-rim);
     box-shadow: var(--glass-shadow);
@@ -64,14 +83,14 @@
     backdrop-filter: var(--glass-blur);
   }
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .glass, .card, .plan, .band, header.top .bar, .btn-ghost, .shots figure .frame, .phone, .chip { background: rgba(28, 32, 70, .92); }
+    .glass, .card, .plan, .band, .poster, .compare, header.top .bar, .btn-ghost, .shots figure .frame, .phone, .chip { background: rgba(28, 32, 70, .92); }
   }
 
   /* Header: a floating glass bar */
   header.top { position: sticky; top: 0; z-index: 20; padding: 14px 0; }
   header.top .bar { display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding: 0 12px 0 20px; border-radius: 999px; }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .2px; text-decoration: none; }
-  .brand img { width: 32px; height: 32px; border-radius: 9px; box-shadow: 0 2px 10px rgba(0, 0, 0, .35); }
+  .brand img { width: 40px; height: 40px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, .35); }
   .bar ul { display: flex; gap: 26px; list-style: none; margin: 0; padding: 0; }
   .bar ul a { text-decoration: none; color: var(--text-2); font-size: .95rem; padding: 10px 2px; }
   .bar ul a:hover { color: #fff; }
@@ -127,6 +146,54 @@
   .shots img { border-radius: 27px; width: 100%; height: auto; }
   .shots figcaption { margin-top: 12px; text-align: center; color: var(--text-2); font-size: .92rem; }
 
+
+  /* Posters */
+  .posters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 20px; }
+  .poster { display: block; padding: 10px; border-radius: 30px; transition: transform .2s ease, filter .2s ease; }
+  .poster:hover { transform: translateY(-3px); filter: brightness(1.06); }
+  .poster img { width: 100%; height: auto; border-radius: 22px; }
+
+
+  /* Premium: the word itself is golden and glossy */
+  .gold {
+    font-weight: 800;
+    background: linear-gradient(180deg, #fff6cf 0%, #ffd95e 26%, #f7a600 50%, #ffe28f 68%, #c97800 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 1px 0 rgba(255, 240, 190, .35)) drop-shadow(0 3px 12px rgba(255, 170, 0, .38));
+  }
+  @supports not ((-webkit-background-clip: text) or (background-clip: text)) { .gold { color: #ffcf5a; filter: none; } }
+  @media (prefers-reduced-motion: no-preference) {
+    .gold { background-size: 100% 220%; animation: goldshine 5.5s ease-in-out infinite; }
+    @keyframes goldshine { 0%, 100% { background-position: 0 0; } 50% { background-position: 0 100%; } }
+  }
+
+  /* Free vs Premium (= Free + extras) */
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .compare { border-radius: var(--radius); padding: 10px; overflow: hidden; }
+  .compare table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; }
+  .compare th, .compare td { padding: 16px 18px; vertical-align: top; border-bottom: 1px solid rgba(255, 255, 255, .10); }
+  .compare tbody tr:last-child th, .compare tbody tr:last-child td { border-bottom: 0; }
+  .compare thead th { font-size: 1.35rem; padding-top: 22px; padding-bottom: 18px; }
+  .compare thead small { display: block; margin-top: 2px; font-size: .82rem; font-weight: 500; letter-spacing: 0; color: var(--text-3); }
+  .compare tbody th { width: 17%; font-weight: 650; color: var(--text); }
+  .compare td { color: var(--text-2); width: 33%; }
+  .compare .pcol, .compare .pcell { background: linear-gradient(180deg, rgba(255, 190, 80, .16), rgba(255, 150, 20, .05)); }
+  .compare .pcol { border-radius: 18px 18px 0 0; }
+  .compare tbody tr:last-child .pcell { border-radius: 0 0 18px 18px; }
+  .compare .pcell { color: var(--text); }
+  .plus { display: inline-grid; place-items: center; width: 20px; height: 20px; margin-right: 6px; border-radius: 50%; font-weight: 800; font-size: .85rem; line-height: 1; color: #2a1700; background: linear-gradient(180deg, #ffe9b0, var(--accent)); vertical-align: 1px; }
+  @media (max-width: 720px) {
+    .compare thead { display: none; }
+    .compare table, .compare tbody, .compare tr, .compare th, .compare td { display: block; width: 100%; }
+    .compare tr { padding: 10px 6px 14px; border-bottom: 1px solid rgba(255, 255, 255, .12); }
+    .compare tr:last-child { border-bottom: 0; }
+    .compare tbody th { width: 100%; padding: 8px 12px 4px; font-size: 1.05rem; border: 0; }
+    .compare td { padding: 6px 12px; border: 0; }
+    .compare td::before { content: attr(data-label); display: block; font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 2px; }
+    .compare .pcell { border-radius: 14px; margin-top: 4px; }
+    .compare .pcell::before { color: #ffd27a; }
+  }
+
   /* Plans */
   .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
   .plan { padding: 32px; border-radius: var(--radius); }
@@ -152,20 +219,21 @@
   .foot a { color: var(--text-2); text-decoration: none; padding: 6px 0; }
   .foot a:hover { color: #fff; text-decoration: underline; }
 
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn, .card { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn, .card, .poster { transition: none; } }
 </style>
 </head>
 <body>
-<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="top">
   <div class="wrap"><div class="bar">
-    <a class="brand" href="#top"><img src="assets/icon-192.png" alt="" width="32" height="32"><span>GlassHome</span></a>
+    <a class="brand" href="#top"><img src="assets/icon-192.png?v=2" alt="" width="40" height="40"><span>GlassHome</span></a>
     <ul>
       <li><a href="#features">Features</a></li>
+      <li><a href="#posters">Highlights</a></li>
       <li><a href="#screens">Screenshots</a></li>
-      <li><a href="#plans">Free &amp; Premium</a></li>
+      <li><a href="#plans">Free &amp; <span class="gold">Premium</span></a></li>
       <li><a href="#privacy">Privacy</a></li>
     </ul>
     <a class="btn btn-primary" style="min-height:42px;padding:0 20px" href="https://play.google.com/store/apps/details?id=com.glasshome.launcher">Get it on Google Play</a>
@@ -182,12 +250,12 @@
         <a class="btn btn-primary" href="https://play.google.com/store/apps/details?id=com.glasshome.launcher">Get it on Google Play</a>
         <a class="btn btn-ghost" href="#features">See what it does</a>
       </div>
-      <p class="meta">Free to use. Android 9 or newer. Premium is optional.</p>
+      <p class="meta">Free to use. Android 9 or newer. <span class="gold">Premium</span> is optional.</p>
     </div>
     <div class="phones" aria-hidden="false">
-      <div class="phone side left"><img src="assets/3_today_glass_widgets.jpg" alt="GlassHome Today page with frosted glass widgets" loading="lazy"></div>
-      <div class="phone main"><img src="assets/1_home_3d_clock_depth.jpg" alt="GlassHome home screen with a 3D clock standing behind a glass wallpaper" width="560" height="1257"></div>
-      <div class="phone side right"><img src="assets/2_app_drawer_glass_icons.jpg" alt="GlassHome app drawer with glass icons" loading="lazy"></div>
+      <div class="phone side left"><img src="assets/phone_settings.jpg" alt="GlassHome settings in frosted glass" loading="lazy"></div>
+      <div class="phone main"><img src="assets/phone_home.jpg" alt="GlassHome home screen with the Tall clock and a glass dock" width="560" height="1156"></div>
+      <div class="phone side right"><img src="assets/phone_appearance.jpg" alt="GlassHome appearance settings" loading="lazy"></div>
     </div>
   </div>
 
@@ -198,7 +266,7 @@
         <p>Everything is built to look like glass without feeling heavy. A lite glass mode keeps things smooth on phones with 4 GB of RAM or less.</p>
       </div>
       <div class="grid">
-        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Depth clock</h3><p>The time sits inside your wallpaper, behind its subject. Depth is free on the Tideline wallpaper; Premium brings it to any wallpaper and any clock.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Depth clock</h3><p>The time sits inside your wallpaper, behind its subject. Depth is free on the Tideline wallpaper; <span class="gold">Premium</span> brings it to any wallpaper and any clock.</p></article>
         <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M3 10h18"/></svg></div><h3>Frosted glass</h3><p>Glass panes, a leaning dock and smooth page transitions. Light, dark and Amoled themes.</p></article>
         <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></div><h3>Icons your way</h3><p>Icon styles, installed icon packs, and sizes from Small to Huge.</p></article>
         <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 15l5-5 4 4 3-3 6 6"/></svg></div><h3>Wallpapers</h3><p>Live wallpapers, or your own photo with adjustable blur and dim.</p></article>
@@ -206,6 +274,27 @@
         <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div><h3>An organised drawer</h3><p>Suggestions, fast search, automatic groups, folders, hidden apps and renamed apps. Ready-made folders on a new phone.</p></article>
         <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M8 11V6a2 2 0 014 0v5m0 0V4a2 2 0 014 0v8m0 0V7a2 2 0 014 0v8a6 6 0 01-6 6h-2a6 6 0 01-5-3l-3-5a2 2 0 013-2l2 2"/></svg></div><h3>Gestures &amp; Control Centre</h3><p>Swipes and pinches for your own shortcuts, a glass Control Centre, and double-tap to lock.</p></article>
         <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg></div><h3>Share your setup</h3><p>Share a picture of your home screen in one tap. Private widgets stay hidden unless you choose to show them.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 1.5M9 2.5h6"/></svg></div><h3>GlassHour</h3><p>See today's time in the apps you open from GlassHome: a total, your top three apps, a friendly healthy-usage line and an optional daily goal. It never blocks anything, needs no usage-access permission, and nothing leaves your phone.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 12c3-6 5-6 9 0s6 6 9 0"/><path d="M3 18c3-4 5-4 9 0s6 4 9 0" opacity=".6"/></svg></div><h3>Fluid motion, everywhere</h3><p>Apps open and close with Expand, Liquid, Zoom or Recede. Pages turn with Slide, Fade, Flip, Spatial, Parallax or Depth. The drawer slides and fades, and search grows out of the button you tapped. Speed is yours to set.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="9" height="12" rx="2.5"/><rect x="14" y="6" width="7" height="12" rx="2.5" opacity=".6"/><path d="M5 3.5h4M15 3.5h3" opacity=".6"/></svg></div><h3>A widget strip that stays tidy</h3><p>Your widgets sit in one swipeable strip with tag chips (All, Weather, Tools, Media...) to filter them. Resize any card, add your own tags, or add another app's widget. Free for everyone.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4 3 3 3-2 5 4"/></svg></div><h3>Discover wallpapers</h3><p>Browse thousands of high-resolution wallpapers online, by category, and apply one in a tap. Included in the free version.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="posters">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Made to be customised</h2>
+        <p>A closer look at what you can change. Tap a poster to see it full size.</p>
+      </div>
+      <div class="posters">
+        <a class="poster glass" href="assets/poster-leaning-dock.jpg" target="_blank" rel="noopener"><img src="assets/poster-leaning-dock.jpg" alt="Poster for the Leaning Dock settings: dock angle 0, 30, 45 and 90 degrees" loading="lazy" width="1400" height="1086"></a>
+        <a class="poster glass" href="assets/poster-depth-effect.jpg" target="_blank" rel="noopener"><img src="assets/poster-depth-effect.jpg" alt="Poster for the Depth effect: the clock sits inside the wallpaper, with a depth editor" loading="lazy" width="1400" height="1283"></a>
+        <a class="poster glass" href="assets/poster-glasshome-space.jpg" target="_blank" rel="noopener"><img src="assets/poster-glasshome-space.jpg" alt="Poster for GlassHome Space: calendar, weather, battery, news and system stats in frosted glass" loading="lazy" width="1400" height="1240"></a>
+        <a class="poster glass" href="assets/poster-clock-widget.jpg" target="_blank" rel="noopener"><img src="assets/poster-clock-widget.jpg" alt="Poster for the clock widget settings: size, position, 24-hour time, seconds and date" loading="lazy" width="1400" height="1240"></a>
+        <a class="poster glass" href="assets/poster-appearance.jpg" target="_blank" rel="noopener"><img src="assets/poster-appearance.jpg" alt="Poster for Appearance settings: icon style, glass effects and app transitions" loading="lazy" width="1400" height="1356"></a>
+        <a class="poster glass" href="assets/poster-app-drawer.jpg" target="_blank" rel="noopener"><img src="assets/poster-app-drawer.jpg" alt="Poster for the app drawer: position, layout, icons and grouping, hidden apps" loading="lazy" width="1400" height="1254"></a>
       </div>
     </div>
   </section>
@@ -218,14 +307,6 @@
       </div>
     </div>
     <div class="shots" tabindex="0" aria-label="GlassHome screenshots">
-      <figure><div class="frame"><img src="assets/1_home_3d_clock_depth.jpg" alt="Home screen with a 3D depth clock" loading="lazy" width="560" height="1257"></div><figcaption>Depth clock</figcaption></figure>
-      <figure><div class="frame"><img src="assets/2_app_drawer_glass_icons.jpg" alt="App drawer with glass icons" loading="lazy" width="560" height="1257"></div><figcaption>Glass app drawer</figcaption></figure>
-      <figure><div class="frame"><img src="assets/3_today_glass_widgets.jpg" alt="Today page with glass widgets" loading="lazy" width="560" height="1257"></div><figcaption>Today widgets</figcaption></figure>
-      <figure><div class="frame"><img src="assets/5_clock_3d_style_picker.jpg" alt="Clock style picker" loading="lazy" width="560" height="1257"></div><figcaption>Clock styles</figcaption></figure>
-      <figure><div class="frame"><img src="assets/6_depth_effect_settings.jpg" alt="Depth effect settings" loading="lazy" width="560" height="1257"></div><figcaption>Depth effect</figcaption></figure>
-      <figure><div class="frame"><img src="assets/7_control_centre.jpg" alt="Glass Control Centre" loading="lazy" width="560" height="1257"></div><figcaption>Control Centre</figcaption></figure>
-      <figure><div class="frame"><img src="assets/8_appearance_icon_style.jpg" alt="Appearance and icon style settings" loading="lazy" width="560" height="1257"></div><figcaption>Icon styles</figcaption></figure>
-      <figure><div class="frame"><img src="assets/4_premium_features.jpg" alt="GlassHome Premium features" loading="lazy" width="560" height="1257"></div><figcaption>Premium</figcaption></figure>
       <figure><div class="frame"><img src="assets/phone_home.jpg" alt="GlassHome home screen with the Tall clock and glass dock" loading="lazy" width="560" height="1156"></div><figcaption>Tall clock and glass dock</figcaption></figure>
       <figure><div class="frame"><img src="assets/phone_settings.jpg" alt="GlassHome settings home" loading="lazy" width="560" height="1138"></div><figcaption>Settings</figcaption></figure>
       <figure><div class="frame"><img src="assets/phone_appearance.jpg" alt="Appearance settings with theme, icon style and glass effects" loading="lazy" width="560" height="1138"></div><figcaption>Appearance</figcaption></figure>
@@ -238,35 +319,71 @@
   <section id="plans">
     <div class="wrap">
       <div class="section-head">
-        <h2>Free, with an optional Premium</h2>
-        <p>The core launcher is free. Premium unlocks the extras and removes every ad.</p>
+        <h2>Free, with an optional <span class="gold">Premium</span></h2>
+        <p><span class="gold">Premium</span> is Free <strong>plus extras</strong>: everything you get for free stays, and <span class="gold">Premium</span> adds more on top and removes every ad.</p>
       </div>
-      <div class="plans">
-        <div class="plan">
-          <h3>Free</h3>
-          <p class="sub">Everything you need to start</p>
-          <ul>
-            <li>The home screen, search and the app drawer</li>
-            <li>Minimal and Tall clocks</li>
-            <li>Glass and Polished icons</li>
-            <li>Standard glass, with Slide, Fade and Flip transitions</li>
-            <li>Depth on the Tideline wallpaper</li>
-          </ul>
-        </div>
-        <div class="plan premium">
-          <h3>Premium</h3>
-          <p class="sub">Everything in Free, plus</p>
-          <ul>
-            <li>No ads</li>
-            <li>Depth effect on any wallpaper, with every clock style</li>
-            <li>Icons your way: packs, large sizes, your own icon for any app</li>
-            <li>Leaning dock</li>
-            <li>Gestures and double-tap to lock</li>
-            <li>Glass and motion: stronger or softer blur, extra page turns, Amoled theme</li>
-            <li>Layouts, groups and hidden apps</li>
-            <li>GlassHour: today's time in the apps you open from GlassHome</li>
-          </ul>
-        </div>
+      <div class="compare glass">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col"><span class="sr">Feature</span></th>
+              <th scope="col">Free<small>Everything you need to start</small></th>
+              <th scope="col" class="pcol"><span class="gold">Premium</span><small>Free + extras</small></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Ads</th>
+              <td data-label="Free">Supported by ads</td>
+              <td data-label="Premium" class="pcell">No ads</td>
+            </tr>
+            <tr>
+              <th scope="row">Depth effect</th>
+              <td data-label="Free">On the Tideline wallpaper, with the Tall clock</td>
+              <td data-label="Premium" class="pcell"><span class="plus">+</span> Any wallpaper and any clock</td>
+            </tr>
+            <tr>
+              <th scope="row">Clock styles</th>
+              <td data-label="Free">Minimal and Tall</td>
+              <td data-label="Premium" class="pcell"><span class="plus">+</span> Glass, Editorial, Solar and 3D</td>
+            </tr>
+            <tr>
+              <th scope="row">Icons</th>
+              <td data-label="Free">Glass and Polished styles, Small and Medium sizes</td>
+              <td data-label="Premium" class="pcell"><span class="plus">+</span> Flat, Cushion, 3D and Classic styles, installed icon packs, Large and Huge sizes</td>
+            </tr>
+            <tr>
+              <th scope="row">Dock</th>
+              <td data-label="Free">The glass dock</td>
+              <td data-label="Premium" class="pcell"><span class="plus">+</span> Leaned-back dock angles</td>
+            </tr>
+            <tr>
+              <th scope="row">Glass &amp; motion</th>
+              <td data-label="Free">Standard glass, with Slide, Fade and Flip page turns</td>
+              <td data-label="Premium" class="pcell"><span class="plus">+</span> Blur strength, Spatial, Parallax and Depth page turns, and the Amoled theme</td>
+            </tr>
+            <tr>
+              <th scope="row">Drawer &amp; layout</th>
+              <td data-label="Free">Swipe-up drawer, up to 4 columns, apps grouped by hand or type</td>
+              <td data-label="Premium" class="pcell"><span class="plus">+</span> Right-edge drawer, 5 and 6 columns, &ldquo;Everything in groups&rdquo; and hidden apps</td>
+            </tr>
+            <tr>
+              <th scope="row">Gestures</th>
+              <td data-label="Free">&mdash;</td>
+              <td data-label="Premium" class="pcell"><span class="plus">+</span> Swipes and pinches for your own shortcuts, and double-tap to lock</td>
+            </tr>
+            <tr>
+              <th scope="row">GlassHour</th>
+              <td data-label="Free">&mdash;</td>
+              <td data-label="Premium" class="pcell"><span class="plus">+</span> The GlassHour widget: today&rsquo;s time in the apps you open from GlassHome</td>
+            </tr>
+            <tr>
+              <th scope="row">Everything else</th>
+              <td data-label="Free">Home screen, search, the Today page, the tagged widget strip, Discover wallpapers and News</td>
+              <td data-label="Premium" class="pcell">All of it, included</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
       <p class="note">Plans are billed through Google Play and can be cancelled any time. The free version shows ads through Google AdMob.</p>
     </div>

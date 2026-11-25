@@ -135,6 +135,9 @@
   .card { padding: 26px; border-radius: var(--radius); transition: transform .2s ease, filter .2s ease; }
   .card:hover { transform: translateY(-3px); filter: brightness(1.08); }
   .card h3 { margin: 14px 0 6px; font-size: 1.15rem; }
+  .cat { margin: 44px 0 4px; font-size: 1.35rem; }
+  .cat:first-of-type { margin-top: 8px; }
+  .cat-sub { margin: 0 0 18px; color: var(--text-2); }
   .card p { margin: 0; color: var(--text-2); font-size: .98rem; }
   .ico { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; color: #ffe2a3; background: linear-gradient(135deg, rgba(255, 190, 80, .35), rgba(255, 150, 20, .12)); border: 1px solid rgba(255, 220, 150, .5); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 6px 18px rgba(255, 150, 20, .2); }
   .ico svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -233,6 +236,7 @@
       <li><a href="#features">Features</a></li>
       <li><a href="#posters">Highlights</a></li>
       <li><a href="#screens">Screenshots</a></li>
+      <li><a href="#upcoming">Coming soon</a></li>
       <li><a href="#plans">Free &amp; <span class="gold">Premium</span></a></li>
       <li><a href="#privacy">Privacy</a></li>
     </ul>
@@ -313,6 +317,65 @@
       <figure><div class="frame"><img src="assets/phone_clock.jpg" alt="Clock settings with style and colour choices" loading="lazy" width="560" height="1138"></div><figcaption>Clock studio</figcaption></figure>
       <figure><div class="frame"><img src="assets/phone_gestures.jpg" alt="Gesture settings" loading="lazy" width="560" height="1138"></div><figcaption>Gestures</figcaption></figure>
       <figure><div class="frame"><img src="assets/phone_drawer_settings.jpg" alt="App drawer settings" loading="lazy" width="560" height="1138"></div><figcaption>App drawer options</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="upcoming">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Coming soon</h2>
+        <p>What is arriving in GlassHome's next updates, in plain words. Some of it may already be on your phone if you are in the beta.</p>
+      </div>
+      <h3 class="cat">Glass &amp; Lens</h3>
+      <p class="cat-sub">A second kind of glass, and finer control over how it looks.</p>
+      <div class="grid">
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M3 10h18"/></svg></div><h3>Lens glass</h3><p>Next to the classic Frosted look, panes can behave like thick, clear glass: the wallpaper stays sharp behind them and bends towards each pane's rounded edge, with a bright bevelled rim. It applies to the dock, folders, widgets, menus, Control Centre and the app drawer. Needs Android 13 or newer.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M3 10h18"/></svg></div><h3>Lens shapes</h3><p>Slab is the flat original. Convex magnifies what is behind a pane, like a magnifying glass; Concave shrinks it, like a peephole. Slab is free; Convex and Concave are <span class="gold">Premium</span>, and you can try both before you decide.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M3 10h18"/></svg></div><h3>Lens intensity</h3><p>One slider sets how far every pane bends the wallpaper, how thick its bevel is and how bright its rim shines, from a thin, gentle glass to a thick, strongly curved one.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M3 10h18"/></svg></div><h3>Glass-pill sliders</h3><p>Under Lens glass, every slider's thumb is a clear glass pill that magnifies the bar beneath it and bends it at its edge.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M3 10h18"/></svg></div><h3>Glass darkness</h3><p>A slider for how dense the tint on folders and widgets is, from clearer glass that lets the wallpaper through to denser glass that keeps text easy to read.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M3 10h18"/></svg></div><h3>Glass folders and search</h3><p>An opened folder sits on its own pane of glass, and the search pill and the app drawer's search field are glass lenses too, with text that stays readable in the Light theme.</p></article>
+      </div>
+      <h3 class="cat">Setup</h3>
+      <p class="cat-sub">A shorter first run that already looks like your phone.</p>
+      <div class="grid">
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg></div><h3>Choose your glass in setup</h3><p>While you set GlassHome up you pick Frosted or Lens, with Lens as the default at a gentle strength. Every choice is shown live in one preview, so you see the result before you commit.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg></div><h3>A shorter setup</h3><p>Setup asks for the theme, wallpaper, glass look, icon style and clock, and leaves the rest to Settings. The intro loops and runs about 40% faster.</p></article>
+      </div>
+      <h3 class="cat">Custom icons &amp; widgets</h3>
+      <p class="cat-sub">Make GlassHome look like yours, with help from any AI assistant.</p>
+      <div class="grid">
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7M14 17.5h7"/></svg></div><h3>Ready-made starters</h3><p>Glass Playground, in Settings, starts you off with a ready-made icon style and a few widgets. One tap on Use this adds them.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7M14 17.5h7"/></svg></div><h3>Auto-apply with Undo</h3><p>A new icon style is applied the moment you add it, with a few seconds to undo it, so trying a look costs nothing.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7M14 17.5h7"/></svg></div><h3>Make your own with AI</h3><p>One card gives you a ready prompt to paste into ChatGPT, Claude or any assistant, and another pastes its reply back. A chip offers to paste it for you when it is on your clipboard.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7M14 17.5h7"/></svg></div><h3>Add to home</h3><p>Each custom widget has an Add to home button, so it goes straight onto your home screen without hunting through the system widget picker. Its preview in Settings matches the widget on your home screen.</p></article>
+      </div>
+      <h3 class="cat">Home screen &amp; app drawer</h3>
+      <p class="cat-sub">Small things that change how the launcher moves and feels.</p>
+      <div class="grid">
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div><h3>Tilt moves</h3><p>Choose what follows the phone's tilt: the clock (as before), the wallpaper, or both. With the wallpaper, the clock stays still while the picture shifts under it, glass panes and all.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div><h3>Drawer dimming</h3><p>A slider for how dark the app drawer is over your wallpaper. Lower lets a pale wallpaper through; higher darkens it.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div><h3>Icon shadow</h3><p>Choose how strong the shadow under app icons is: Off, Soft, Medium or Strong.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div><h3>Weather per widget</h3><p>Each Weather widget keeps its own town, so two widgets can show two places, and each can switch between &deg;C and &deg;F.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div><h3>Calmer ads, smoother drawer</h3><p>In the free version the drawer's ad card floats over the list and your apps scroll behind it. Video ads wait a moment before they start, so opening the drawer stays smooth. The drawer also stretches elastically at its end and opens at the top level after a folder.</p></article>
+      </div>
+      <h3 class="cat">A tidier Settings</h3>
+      <p class="cat-sub">One home for every setting, easier to find and easier to read.</p>
+      <div class="grid">
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></div><h3>Regrouped sections</h3><p>Each thing has one place: Icons and GlassHome Space are pages of their own, and Depth effect sits with the Clock.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></div><h3>Search with answers</h3><p>Settings search shows the current value beside a result, such as Blur 0%, and clears the page while you type.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></div><h3>Clearer pop-ups</h3><p>Every pop-up has a title, solid glass so the page behind never shows through, and the same Cancel and Apply buttons. Short lists show every choice at once.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></div><h3>Previews that stay put</h3><p>Glass effects keeps its preview pinned at the top while you drag the sliders below it, with the percentage beside each slider.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></div><h3>A rebuilt About page</h3><p>A version card, a short What's new, Community and support as one tidy list, and Privacy and permissions together. The Wallpaper page matches the rest of Settings.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></div><h3>Readable at any size</h3><p>Layouts that used to clip at large font sizes now wrap cleanly, and the wording is plainer: the dock is called the dock everywhere.</p></article>
+      </div>
+      <h3 class="cat">Community &amp; support</h3>
+      <p class="cat-sub">Ways to follow along and help shape GlassHome.</p>
+      <div class="grid">
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg></div><h3>Join the beta</h3><p>A button in Settings opens GlassHome's testing page on Google Play, where you can become a tester and leave any time.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg></div><h3>Follow GlassHome</h3><p>Links to GlassHome on YouTube and Instagram, under Settings &rsaquo; About.</p></article>
+        <article class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg></div><h3>A gentler home-app prompt</h3><p>The question about making GlassHome your home app no longer returns every time you open Settings.</p></article>
+      </div>
     </div>
   </section>
 

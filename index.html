@@ -142,6 +142,24 @@
   .ico { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; color: #ffe2a3; background: linear-gradient(135deg, rgba(255, 190, 80, .35), rgba(255, 150, 20, .12)); border: 1px solid rgba(255, 220, 150, .5); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 6px 18px rgba(255, 150, 20, .2); }
   .ico svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
+  /* Glass Playground spotlight */
+  .pg-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .pg-step { padding: 22px; border-radius: var(--radius); }
+  .pg-step .n { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; margin-bottom: 12px; font-weight: 800; color: #2a1700; background: linear-gradient(180deg, #ffe2a3, var(--accent)); box-shadow: 0 6px 16px rgba(255, 150, 20, .35); }
+  .pg-step h3 { margin: 0 0 6px; font-size: 1.08rem; }
+  .pg-step p { margin: 0; color: var(--text-2); font-size: .95rem; }
+  .pg-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+  .pg-panel { padding: 28px; border-radius: var(--radius); }
+  .pg-panel h3 { margin: 0 0 6px; font-size: 1.4rem; }
+  .pg-panel > p { margin: 0; color: var(--text-2); }
+  .pg-say { margin: 16px 0; padding: 14px 16px; border-radius: 18px; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .18); font-style: italic; }
+  .pg-panel h4 { margin: 18px 0 6px; font-size: .86rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-2); }
+  .pg-list { margin: 0; padding-left: 1.15em; color: var(--text-2); font-size: .96rem; }
+  .pg-list li { margin: 3px 0; }
+  .pg-code { margin: 10px 0 0; padding: 14px; border-radius: 16px; background: rgba(5, 8, 24, .55); border: 1px solid rgba(255, 255, 255, .14); overflow-x: auto; font-size: .76rem; line-height: 1.5; color: #ffe2a3; white-space: pre; }
+  .pg-extras { margin-top: 28px; }
+  .pg-fine { margin: 22px 0 0; color: var(--text-3); font-size: .9rem; }
+
   /* Screenshots */
   .shots { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 20px 28px; margin-inline: calc(50% - 50vw); padding-inline: max(20px, calc(50vw - var(--max) / 2)); scrollbar-width: thin; }
   .shots figure { margin: 0; flex: 0 0 auto; width: 240px; scroll-snap-align: center; }
@@ -233,6 +251,7 @@
   <div class="wrap"><div class="bar">
     <a class="brand" href="#top"><img src="assets/icon-192.png?v=2" alt="" width="40" height="40"><span>GlassHome</span></a>
     <ul>
+      <li><a href="#playground">Custom icons &amp; widgets</a></li>
       <li><a href="#upcoming">Coming soon</a></li>
       <li><a href="#features">Features</a></li>
       <li><a href="#posters">Highlights</a></li>
@@ -262,6 +281,75 @@
       <div class="phone side right"><img src="assets/phone_appearance.jpg" alt="GlassHome appearance settings" loading="lazy"></div>
     </div>
   </div>
+
+  <section id="playground">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="chip">Glass Playground &middot; Coming soon</span>
+        <h2>Design your own icons and widgets. Just describe them.</h2>
+        <p>Tell any AI assistant the look you want, in plain words. GlassHome turns its answer into a real icon style or a real home-screen widget, previews it on your own apps, and applies it. No design skills, no code to write, no account.</p>
+      </div>
+
+      <div class="pg-steps">
+        <div class="glass pg-step"><div class="n">1</div><h3>Copy the prompt</h3><p>In Settings &rsaquo; Glass Playground, one tap copies a ready-made prompt that teaches the AI what GlassHome understands.</p></div>
+        <div class="glass pg-step"><div class="n">2</div><h3>Describe what you want</h3><p>Paste it into ChatGPT, Claude or any assistant and say it in your own words: &ldquo;calm, frosted, very round icons with a soft glow&rdquo;.</p></div>
+        <div class="glass pg-step"><div class="n">3</div><h3>Paste the reply</h3><p>Copy the answer and bring it back. GlassHome checks it, and if something is off it tells you exactly what to ask the AI to fix.</p></div>
+        <div class="glass pg-step"><div class="n">4</div><h3>See it, keep it</h3><p>An icon style is previewed on your own apps and applied with an Undo. A widget goes onto your home screen with one tap.</p></div>
+      </div>
+
+      <div class="pg-two">
+        <article class="glass pg-panel">
+          <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7M14 17.5h7"/></svg></div>
+          <h3 style="margin-top:14px">Custom icon styles</h3>
+          <p>Restyle every app icon on your phone, not just a few. One style, drawn the same way for all of them.</p>
+          <div class="pg-say">&ldquo;Calm, frosted, very round icons with a soft glow.&rdquo;</div>
+          <h4>What you can shape</h4>
+          <ul class="pg-list">
+            <li><b>Shape</b>: from a perfect circle through a soft squircle to a crisp square, or your phone's own shapes.</li>
+            <li><b>Backplate</b>: the app's own colour, a frosted tint, one flat ink colour, or clear glass.</li>
+            <li><b>Artwork</b>: the app's own art, one-colour line art, or a grid of dots; and how big it sits on the tile.</li>
+            <li><b>Finish</b>: sheen, inner shadow, a fine border, lightness, colour richness (or greyscale), a solid plate colour of your choice, and the drop shadow.</li>
+          </ul>
+          <h4>A style is this small</h4>
+          <pre class="pg-code">{&quot;schema&quot;:1,&quot;name&quot;:&quot;Mono Circles&quot;,&quot;style&quot;:{
+  &quot;shaping&quot;:&quot;Uniform&quot;,&quot;cornerExponent&quot;:2,
+  &quot;artworkScale&quot;:0.56,&quot;backplate&quot;:&quot;Frosted&quot;,
+  &quot;treatment&quot;:&quot;Glyph&quot;,&quot;saturation&quot;:0,
+  &quot;plateColor&quot;:&quot;#EFEFF2&quot;,&quot;dropShadow&quot;:true}}</pre>
+        </article>
+
+        <article class="glass pg-panel">
+          <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg></div>
+          <h3 style="margin-top:14px">Custom widgets</h3>
+          <p>Build a widget that shows what you care about, in the layout you imagine, on glass that follows your theme.</p>
+          <div class="pg-say">&ldquo;A calm clock with the date and a thin battery line.&rdquo;</div>
+          <h4>What you can build with</h4>
+          <ul class="pg-list">
+            <li><b>Layouts</b>: rows, columns and stacked layers, with spacing, padding and alignment, in 2&times;2, 4&times;2, 2&times;4 or 4&times;4.</li>
+            <li><b>Live values</b>: the time and date in the format you choose, battery level and charging, memory and storage used.</li>
+            <li><b>Pieces</b>: text in the size and weight you choose, progress bars, shapes, small weather and power glyphs.</li>
+            <li><b>Colour</b>: your theme's own colours, so it always looks right in light, dark and Amoled.</li>
+            <li><b>Tap</b>: open any app, the app drawer, search or Settings.</li>
+          </ul>
+          <h4>A widget is this small</h4>
+          <pre class="pg-code">{&quot;schema&quot;:1,&quot;name&quot;:&quot;Good morning&quot;,&quot;sizes&quot;:[&quot;2x2&quot;,&quot;4x2&quot;],
+ &quot;root&quot;:{&quot;type&quot;:&quot;column&quot;,&quot;gap&quot;:4,&quot;padding&quot;:14,&quot;children&quot;:[
+  {&quot;type&quot;:&quot;text&quot;,&quot;bind&quot;:&quot;time&quot;,&quot;format&quot;:&quot;HH:mm&quot;,&quot;size&quot;:40,&quot;fontWeight&quot;:&quot;bold&quot;},
+  {&quot;type&quot;:&quot;text&quot;,&quot;bind&quot;:&quot;date&quot;,&quot;format&quot;:&quot;EEE d MMM&quot;,&quot;size&quot;:14,&quot;muted&quot;:true},
+  {&quot;type&quot;:&quot;bar&quot;,&quot;bind&quot;:&quot;battery.level&quot;,&quot;height&quot;:6,&quot;color&quot;:&quot;accent&quot;}]},
+ &quot;onTap&quot;:{&quot;action&quot;:&quot;openApp&quot;,&quot;package&quot;:&quot;com.google.android.deskclock&quot;}}</pre>
+        </article>
+      </div>
+
+      <div class="grid pg-extras">
+        <article class="card"><h3>Start from a ready-made look</h3><p>Not sure what to ask for? Pick a starter: the Mono Circles icon style, or the Good morning, Phone health, Big clock and Battery glance widgets. They also show you what a good answer looks like.</p></article>
+        <article class="card"><h3>Try it, undo it</h3><p>A new icon style applies the moment you add it, with a few seconds to take it back. Keep as many styles as you like and switch between them whenever you want.</p></article>
+        <article class="card"><h3>Share a look</h3><p>A style or a widget is a small file. Send it to a friend and they can import it into their own GlassHome.</p></article>
+        <article class="card"><h3>Checked, and private</h3><p>Everything you paste is checked before it is used, and a widget can never open a web link. It all stays on your phone, and there is no account.</p></article>
+      </div>
+      <p class="pg-fine">Glass Playground is an experimental feature, arriving in an upcoming update. What you can make is the set of building blocks listed above, and an AI assistant may need a nudge or two to get exactly the look you want.</p>
+    </div>
+  </section>
 
   <section id="upcoming">
     <div class="wrap">

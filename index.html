@@ -91,14 +91,16 @@
   header.top .bar { display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding: 0 12px 0 20px; border-radius: 999px; }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .2px; text-decoration: none; }
   .brand img { width: 40px; height: 40px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, .35); }
-  .bar ul { display: flex; gap: 22px; list-style: none; margin: 0 12px; padding: 0; min-width: 0; }
-  .bar ul a { text-decoration: none; color: var(--text-2); font-size: .95rem; padding: 10px 2px; white-space: nowrap; }
+  /* The bar is never wider than the page's own 1120px column, whatever the window, so these seven links
+     have to fit that: tight gaps and a slightly smaller size, or the last one slides under the button. */
+  .bar ul { display: flex; gap: 14px; list-style: none; margin: 0 8px; padding: 0; min-width: 0; }
+  .bar ul a { text-decoration: none; color: var(--text-2); font-size: .9rem; padding: 10px 2px; white-space: nowrap; }
   .brand { flex-shrink: 0; }
   header.top .btn { flex-shrink: 0; white-space: nowrap; }
   .bar ul a:hover { color: #fff; }
   /* Seven links no longer fit beside the brand and the button below this width: they would wrap onto each
      other, so the list steps aside and the page's sections are reached by scrolling. */
-  @media (max-width: 1180px) { .bar ul { display: none; } }
+  @media (max-width: 1120px) { .bar ul { display: none; } }
 
   /* Buttons */
   .btn { display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 26px; border-radius: 999px; font-weight: 650; text-decoration: none; transition: transform .15s ease, box-shadow .15s ease, filter .15s ease; }
